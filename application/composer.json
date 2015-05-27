@@ -1,0 +1,7 @@
+{
+  "description" : "CodeIgniter application",
+  "name" : "Avenirer/ciApp",
+  "require": {
+    "php": ">=5.3"
+  }
+}

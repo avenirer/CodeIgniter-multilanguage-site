@@ -1,0 +1,13 @@
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+
+class {{MODEL}} extends {{EXTENDS}}
+{
+	public function __construct()
+	{
+		parent::__construct();
+	}
+
+{{METHODS}}
+}
+/* End of file '{{MODEL_FILE}}' */
+/* Location: {{FILE_PATH}} */
