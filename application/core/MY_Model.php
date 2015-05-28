@@ -1,6 +1,9 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-/** how to extend MY_Model:
+/**
+ * GET THE LAST MY_Model FROM https://github.com/avenirer/CodeIgniter-MY_Model
+ *
+ * how to extend MY_Model:
  *	class User_model extends MY_Model
  *	{
  *      public $table = 'users'; // Set the name of the table for this model.
