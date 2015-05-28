@@ -104,6 +104,7 @@ class Admin_Controller extends MY_Controller
 	{
 		parent::__construct();
 		$this->load->library('ion_auth');
+        $this->load->library('postal');
 		$this->load->helper('url');
 		if (!$this->ion_auth->logged_in())
 		{

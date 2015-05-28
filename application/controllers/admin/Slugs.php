@@ -8,8 +8,8 @@ class Slugs extends Admin_Controller
 		parent::__construct();
         if(!$this->ion_auth->in_group('admin'))
         {
-            $this->session->set_flashdata('message','You are not allowed to visit the Slugs page');
-            redirect('admin','refresh');
+            $this->postal->add('You are not allowed to visit the Slugs page','error');
+            redirect('admin');
         }
         $this->load->model('slug_model');
         $this->load->library('form_validation');
@@ -39,13 +39,13 @@ class Slugs extends Admin_Controller
     {
         if($this->slug_model->delete($slug_id))
         {
-            $this->session->set_flashdata('message', 'The slug was deleted');
+            $this->postal->add('The slug was deleted','success');
         }
         else
         {
-            $this->session->set_flashdata('message', 'There is no slug with that ID.');
+            $this->postal->add('There is no slug with that ID.','error');
         }
-        redirect($_SERVER['HTTP_REFERER'],'refresh');
+        redirect($_SERVER['HTTP_REFERER']);
 
     }
 }

@@ -8,6 +8,7 @@ class User extends MY_Controller
     {
         parent::__construct();
         $this->load->library('ion_auth');
+        $this->load->library('postal');
     }
 
     public function index()
@@ -18,7 +19,7 @@ class User extends MY_Controller
     {
         if($this->ion_auth->logged_in())
         {
-            redirect('admin','refresh');
+            redirect('admin');
         }
         $redirect_to = $this->session->flashdata('redirect_to');
         if(!isset($redirect_to) && isset($_SERVER['HTTP_REFERER']))
@@ -46,13 +47,13 @@ class User extends MY_Controller
                 //echo '<br />'.$redirect_to;
                 //exit;
                 //$redirect_to = $this->input->post('redirect_to');
-                redirect('/admin', 'refresh');
+                redirect('admin');
             }
             else
             {
                 $this->session->set_flashdata('redirect_to',$this->input->post('redirect_to'));
-                $this->session->set_flashdata('message', $this->ion_auth->errors());
-                redirect('admin/user/login', 'refresh');
+                $this->postal->add($this->ion_auth->errors(),'error');
+                redirect('admin/user/login');
             }
         }
         $this->load->helper('form');
@@ -90,9 +91,8 @@ class User extends MY_Controller
             );
             if(strlen($this->input->post('password'))>=6) $new_data['password'] = $this->input->post('password');
             $this->ion_auth->update($user->id, $new_data);
-
-            $this->session->set_flashdata('message', $this->ion_auth->messages());
-            redirect('admin/user/profile','refresh');
+            $this->postal->add($this->ion_auth->messages(),'error');
+            redirect('admin/user/profile');
 
         }
     }
@@ -100,7 +100,7 @@ class User extends MY_Controller
     public function logout()
     {
         $this->ion_auth->logout();
-        $this->session->set_flashdata('message', $this->ion_auth->messages());
-        redirect('admin/user/login', 'refresh');
+        $this->postal->add($this->ion_auth->messages(),'error');
+        redirect('admin/user/login');
     }
 }

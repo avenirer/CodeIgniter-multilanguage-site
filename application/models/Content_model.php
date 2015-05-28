@@ -8,6 +8,7 @@ class Content_model extends MY_Model
     public function __construct()
     {
         $this->featured_image = $this->config->item('cms_featured_image');
+        $this->has_many['translations'] = array('Content_translation_model','content_id','id');
         parent::__construct();
     }
 

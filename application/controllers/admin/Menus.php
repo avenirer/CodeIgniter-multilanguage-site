@@ -8,8 +8,8 @@ class Menus extends Admin_Controller
 		parent::__construct();
         if(!$this->ion_auth->in_group('admin'))
         {
-            $this->session->set_flashdata('message','You are not allowed to visit the Categories page');
-            redirect('admin','refresh');
+            $this->postal->add('You are not allowed to visit the Categories page','error');
+            redirect('admin');
         }
         $this->load->model('menu_model');
         $this->load->model('menu_item_model');
@@ -63,9 +63,9 @@ class Menus extends Admin_Controller
             $title = url_title(convert_accented_characters($this->input->post('title')),'-',TRUE);
             if ($this->menu_model->insert(array('title'=>$title, 'created_by'=>$this->user_id)))
             {
-                $this->session->set_flashdata('message', 'The new menu was created.');
+                $this->postal->add('The new menu was created.','success');
             }
-            redirect('admin/menus','refresh');
+            redirect('admin/menus');
         }
     }
 
@@ -74,8 +74,8 @@ class Menus extends Admin_Controller
         $menu = $this->menu_model->get($menu_id);
         if($menu == FALSE)
         {
-            $this->session->set_flashdata('message', 'There is no menu to edit.');
-            redirect('admin/menus', 'refresh');
+            $this->postal->add('There is no menu to edit.','error');
+            redirect('admin/menus');
         }
         $this->data['menu'] = $menu;
 
@@ -90,12 +90,12 @@ class Menus extends Admin_Controller
             $title = $this->input->post('title');
             $menu_id = $this->input->post('menu_id');
             $update_data = array('title' => $title,'updated_by' => $this->user_id);
-            $this->session->set_flashdata('message', 'Couldn\'t edit menu.');
+            $this->postal->add('Couldn\'t edit menu.','error');
             if ($this->menu_model->update($update_data, $menu_id))
             {
-                $this->session->set_flashdata('message', 'The menu was updated successfully.');
+                $this->postal->add('The menu was updated successfully.','success');
             }
-            redirect('admin/menus','refresh');
+            redirect('admin/menus');
         }
     }
 
@@ -103,21 +103,21 @@ class Menus extends Admin_Controller
     {
         if(!$this->menu_model->delete($menu_id))
         {
-            $this->session->set_flashdata('message', 'The menu doesn\'t exist.');
-            redirect('admin/menus','refresh');
+            $this->postal->add('The menu doesn\'t exist.','error');
+            redirect('admin/menus');
         }
         if($menu_items = $this->menu_item_model->update(array('menu_id'=>'0','updated_by'=>$this->user_id),array('menu_id'=>$menu_id)))
         {
-            $this->session->set_flashdata('message','The menu was deleted. Now you have '.$menu_items.' menu item without a menu location.');
+            $this->postal->add('The menu was deleted. Now you have '.$menu_items.' menu item without a menu location.','success');
         }
-        redirect('admin/menus','refresh');
+        redirect('admin/menus');
     }
 
     public function items($menu_id = NULL)
     {
         if(!isset($menu_id) || $menu_id == 0)
         {
-            redirect('admin/menus','refresh');
+            redirect('admin/menus');
         }
         $this->data['menu'] = $this->menu_model->get($menu_id);
         $list_items = array();
@@ -163,8 +163,8 @@ class Menus extends Admin_Controller
         }
         if($this->menu_item_translation_model->where(array('item_id'=>$item_id,'language_slug'=>$language_slug))->get())
         {
-            $this->session->set_flashdata('message', 'A translation for that menu item already exists.');
-            redirect('admin/menus/items/'.$menu_id, 'refresh');
+            $this->postal->add('A translation for that menu item already exists.','error');
+            redirect('admin/menus/items/'.$menu_id);
         }
         $this->data['item'] = $item;
         $this->data['item_id'] = $item_id;
@@ -195,22 +195,22 @@ class Menus extends Admin_Controller
             $item_id = $this->input->post('item_id');
             $menu_id = $this->input->post('menu_id');
             $language_slug = $this->input->post('language_slug');
-            $this->session->set_flashdata('message', 'Couldn\'t add item.');
+            $this->postal->add('Couldn\'t add item.','error');
             if ($item_id == 0)
             {
                 $item_id = $this->menu_item_model->insert(array('menu_id' => $menu_id, 'parent_id' => $parent_id, 'order' => $order, 'styling'=>$styling, 'created_by'=>$this->user_id));
-                $this->session->set_flashdata('message', 'Item successfuly added, but didn\'t add translation...');
+                $this->postal->add('Item successfuly added, but didn\'t add translation...','error');
             }
 
             $insert_data = array('item_id' => $item_id, 'title' => $title, 'url' => $url, 'absolute_path' => $absolute_path, 'language_slug' => $language_slug, 'created_by'=>$this->user_id);
 
             if($translation_id = $this->menu_item_translation_model->insert($insert_data))
             {
-                $this->session->set_flashdata('message', 'Item successfuly added.');
+                $this->postal->add('Item successfuly added.','success');
                 $this->menu_item_model->update(array('parent_id'=>$parent_id, 'order'=>$order, 'styling'=>$styling, 'updated_by'=>$this->user_id),$item_id);
             }
 
-            redirect('admin/menus/items/'.$menu_id,'refresh');
+            redirect('admin/menus/items/'.$menu_id);
 
         }
     }
@@ -219,7 +219,7 @@ class Menus extends Admin_Controller
     {
         if($item_id==0)
         {
-            redirect('admin/menus/items/'.$menu_id,'refresh');
+            redirect('admin/menus/items/'.$menu_id);
         }
 
         $this->data['menu_id'] = $menu_id;
@@ -231,8 +231,8 @@ class Menus extends Admin_Controller
         $translation = $this->menu_item_translation_model->where(array('item_id'=>$item_id,'language_slug'=>$language_slug))->get();
         if($translation===FALSE)
         {
-            $this->session->set_flashdata('message', 'There is no translation for that menu item.');
-            redirect('admin/menus/items/'.$menu_id, 'refresh');
+            $this->postal->add('There is no translation for that menu item.','error');
+            redirect('admin/menus/items/'.$menu_id);
         }
         $this->data['item'] = $item;
         $this->data['translation'] = $translation;
@@ -263,16 +263,16 @@ class Menus extends Admin_Controller
             $translation_id = $this->input->post('translation_id');
             $item_id = $this->input->post('item_id');
             $menu_id = $this->input->post('menu_id');
-            $this->session->set_flashdata('message', 'Couldn\'t edit item.');
+            $this->postal->add('Couldn\'t edit item.','error');
 
             $update_data = array('title' => $title, 'url' => $url, 'absolute_path' => $absolute_path, 'updated_by'=>$this->user_id);
 
             if($this->menu_item_translation_model->update($update_data,$translation_id))
             {
-                $this->session->set_flashdata('message', 'Item successfuly edited.');
+                $this->postal->add('Item successfuly edited.','success');
                 $this->menu_item_model->update(array('parent_id'=>$parent_id, 'order'=>$order,'styling'=>$styling,'updated_by'=>$this->user_id),$item_id);
             }
-            redirect('admin/menus/items/'.$menu_id,'refresh');
+            redirect('admin/menus/items/'.$menu_id);
 
         }
     }
@@ -286,26 +286,26 @@ class Menus extends Admin_Controller
                 if($deleted_translations = $this->menu_item_translation_model->where('item_id',$item_id)->delete())
                 {
                     $deleted_item = $this->menu_item_model->delete($item_id);
-                    $this->session->set_flashdata('message', 'The item was deleted. There were also '.$deleted_translations.' translations deleted.');
+                    $this->postal->add('The item was deleted. There were also '.$deleted_translations.' translations deleted.','success');
                 }
                 else
                 {
                     $deleted_item = $this->menu_item_model->delete($item_id);
-                    $this->session->set_flashdata('message', 'The item was deleted');
+                    $this->postal->add('The item was deleted','success');
                 }
             }
             else
             {
                 if($this->menu_item_translation_model->where(array('item_id'=>$item_id,'language_slug'=>$language_slug))->delete())
                 {
-                    $this->session->set_flashdata('message', 'The translation was deleted.');
+                    $this->postal->add('The translation was deleted.','success');
                 }
             }
         }
         else
         {
-            $this->session->set_flashdata('message', 'There is no translation to delete.');
+            $this->postal->add('There is no translation to delete.','error');
         }
-        redirect('admin/menus/items/'.$menu_id,'refresh');
+        redirect('admin/menus/items/'.$menu_id);
     }
 }

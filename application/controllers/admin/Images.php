@@ -7,6 +7,11 @@ class Images extends Admin_Controller
 	function __construct()
 	{
 		parent::__construct();
+        if(!$this->ion_auth->in_group('admin'))
+        {
+            $this->postal->add('You are not allowed to visit the Images page','error');
+            redirect('admin');
+        }
         $this->load->model('image_model');
         $this->load->model('content_model');
         $this->load->library('form_validation');
@@ -19,8 +24,8 @@ class Images extends Admin_Controller
 	{
         if(!isset($content_id))
         {
-            $this->session->set_flashdata('message', 'You are not allowed to access <strong>images/index</strong> page unless you come from a specific content type and ID.');
-            redirect('admin','refresh');
+            $this->postal->add('You are not allowed to access <strong>images/index</strong> page unless you come from a specific content type and ID.','error');
+            redirect('admin');
         }
         $this->data['show_images'] = $this->image_model->where(array('content_id'=>$content_id))->get_all();
         $this->data['content_id'] = $content_id;
@@ -65,13 +70,13 @@ class Images extends Admin_Controller
                 }
                 if($inserted_images = $this->image_model->insert($insert_images))
                 {
-                    $this->session->set_flashdata('message', sizeof($inserted_images).' image(s) were uploaded.');
+                    $this->postal->add(sizeof($inserted_images).' image(s) were uploaded.','success');
                 }
                 else
                 {
-                    $this->session->set_flashdata('message', 'Oops... there was a problem... Don\'t ask me what...');
+                    $this->postal->add('Oops... there was a problem... Don\'t ask me what...','error');
                 }
-                redirect('admin/images/index/'.$content_id,'refresh');
+                redirect('admin/images/index/'.$content_id);
             }
             $this->render('admin/images/index_view');
         }
@@ -93,17 +98,20 @@ class Images extends Admin_Controller
             $image_id = $this->input->post('image_id');
             if($image = $this->image_model->get($image_id))
             {
-                $this->session->set_flashdata('message', 'Couldn\'t modify the image title.');
                 if($this->image_model->update(array('title'=>$title),$image->id))
                 {
-                    $this->session->set_flashdata('message', 'The image title was modified.');
+                    $this->postal->add('The image title was modified.','success');
+                }
+                else
+                {
+                    $this->postal->add('Couldn\'t modify the image title.','error');
                 }
             }
             else
             {
-                $this->session->set_flashdata('message', 'There\'s no image with that ID.');
+                $this->postal->add('There\'s no image with that ID.','error');
             }
-            redirect('admin/images/index/'.$image->content_type.'/'.$image->content_id,'refresh');
+            redirect('admin/images/index/'.$image->content_type.'/'.$image->content_id);
         }
     }
 
@@ -158,9 +166,9 @@ class Images extends Admin_Controller
                     //print_r($processed_image);
                     if($this->content_model->update(array('featured_image'=>$processed_image[0][$this->featured_image]['file_name']),$content_id))
                     {
-                        $this->session->set_flashdata('message', 'The featured image was successfully uploaded.');
+                        $this->postal->add('The featured image was successfully uploaded.','success');
                     }
-                    redirect('admin/contents/index/'.$content->content_type,'refresh');
+                    redirect('admin/contents/index/'.$content->content_type);
                 }
                 else
                 {
@@ -176,8 +184,8 @@ class Images extends Admin_Controller
         $content = $this->content_model->get($content_id);
         if($content===FALSE)
         {
-            $this->session->set_flashdata('message', 'There is no content there.');
-            redirect('admin','refresh');
+            $this->postal->add('There is no content there.','error');
+            redirect('admin');
         }
         else
         {
@@ -186,8 +194,8 @@ class Images extends Admin_Controller
             @unlink(FCPATH.'media/'.$this->featured_image.'/'.$file_name);
             if($this->content_model->update(array('featured_image'=>''),$id))
             {
-                $this->session->set_flashdata('message', 'The featured image was removed.');
-                redirect('admin/contents/index/'.$content->content_type,'refresh');
+                $this->postal->add('The featured image was removed.','success');
+                redirect('admin/contents/index/'.$content->content_type);
             }
 
         }
@@ -200,12 +208,12 @@ class Images extends Admin_Controller
         $content_id = $image->content_id;
         if($this->image_model->delete($image_id))
         {
-            $this->session->set_flashdata('message', 'The image was removed from database but not as file.');
+            $this->postal->add('The image was removed from database but not as file.','error');
         }
         if(unlink(FCPATH.'media/'.$file))
         {
-            $this->session->set_flashdata('message', 'The image was removed.');
+            $this->postal->add('The image was removed.','success');
         }
-        redirect('admin/images/index/'.$content_id,'refresh');
+        redirect('admin/images/index/'.$content_id);
     }
 }

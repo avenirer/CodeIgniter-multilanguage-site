@@ -9,8 +9,8 @@ class Users extends Admin_Controller
         parent::__construct();
         if(!$this->ion_auth->in_group('admin'))
         {
-            $this->session->set_flashdata('message','You are not allowed to visit the Groups page');
-            redirect('admin','refresh');
+            $this->postal->add('You are not allowed to visit the Users page','error');
+            redirect('admin');
         }
     }
 
@@ -56,8 +56,8 @@ class Users extends Admin_Controller
                 'phone'      => $this->input->post('phone')
             );
             $this->ion_auth->register($username, $password, $email, $additional_data, $group_ids);
-            $this->session->set_flashdata('message',$this->ion_auth->messages());
-            redirect('admin/users','refresh');
+            $this->postal->add($this->ion_auth->messages(),'success');
+            redirect('admin/users');
         }
     }
 
@@ -66,8 +66,8 @@ class Users extends Admin_Controller
         $user_id = $this->input->post('user_id') ? $this->input->post('user_id') : $user_id;
         if($this->data['current_user']->id == $user_id)
         {
-            $this->session->set_flashdata('message', 'Use the profile page to change your own credentials.');
-            redirect('admin/users', 'refresh');
+            $this->postal->add('Use the profile page to change your own credentials.','error');
+            redirect('admin/users');
         }
         $this->data['page_title'] = 'Edit user';
         $this->load->library('form_validation');
@@ -91,8 +91,8 @@ class Users extends Admin_Controller
             }
             else
             {
-                $this->session->set_flashdata('message', 'The user doesn\'t exist.');
-                redirect('admin/users', 'refresh');
+                $this->postal->add('The user doesn\'t exist.','error');
+                redirect('admin/users');
             }
             $this->data['groups'] = $this->ion_auth->groups()->result();
             $this->data['usergroups'] = array();
@@ -131,9 +131,8 @@ class Users extends Admin_Controller
                     $this->ion_auth->add_to_group($group, $user_id);
                 }
             }
-
-            $this->session->set_flashdata('message',$this->ion_auth->messages());
-            redirect('admin/users','refresh');
+            $this->postal->add($this->ion_auth->messages(),'success');
+            redirect('admin/users');
         }
     }
 
@@ -141,13 +140,13 @@ class Users extends Admin_Controller
     {
         if(is_null($user_id))
         {
-            $this->session->set_flashdata('message','There\'s no user to delete');
+            $this->postal->add('There\'s no user to delete','error');
         }
         else
         {
             $this->ion_auth->delete_user($user_id);
-            $this->session->set_flashdata('message',$this->ion_auth->messages());
+            $this->postal->add($this->ion_auth->messages(),'success');
         }
-        redirect('admin/users','refresh');
+        redirect('admin/users');
     }
 }

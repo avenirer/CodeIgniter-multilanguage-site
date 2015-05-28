@@ -9,6 +9,7 @@ class Findcontent extends Public_Controller
     {
         parent::__construct();
         $this->load->model('slug_model');
+        $this->load->model('content_model');
     }
 
     public function index()
@@ -34,25 +35,26 @@ class Findcontent extends Public_Controller
                 }
                 if($slug->language_slug == $this->default_lang)
                 {
-                    redirect($slug->url, 'auto', 301);
+                    redirect($slug->url, 'location', 301);
                 }
                 else
                 {
                     redirect($slug->language_slug.'/'.$slug->url,'refresh');
                 }
             }
-            $content_type = $slug->content_type;
             $content_id = $slug->content_id;
             $language_slug = $slug->language_slug;
 
-            if(!$this->load->model($content_type.'_model','content_model'))
-            {
-                echo 'bau';
-                //show_404();
+            $content = $this->content_model->where('published','1')->with_translations('where:`language_slug` = \'' . $language_slug . '\'')->get($content_id);
+            if($translation = $content->translations[0]) {
+
+                /*
+                echo '<pre>';
+                print_r($content);
+                echo '</pre>';
                 exit;
-            }
-            if($content = $this->content_model->where('published','1')->with_translations('where:`language_slug` = \'' . $language_slug . '\'')->get($content_id)->translations[0]) {
-                $alternate_content = $this->slug_model->where(array('content_type' => $content_type, 'content_id' => $content_id, 'redirect' => '0'))->get_all();
+                */
+                $alternate_content = $this->slug_model->where(array('content_id' => $content_id, 'redirect' => '0'))->get_all();
                 if (!empty($alternate_content))
                 {
                     foreach($alternate_content as $link)
@@ -61,13 +63,13 @@ class Findcontent extends Public_Controller
                     }
                 }
                 $this->data['langs'] = $this->langs;
-                $this->data['page_title'] = $content->page_title;
-                $this->data['page_description'] = $content->page_description;
-                $this->data['page_keywords'] = $content->page_keywords;
-                $this->data['title'] = $content->title;
-                $this->data['content'] = $content->content;
+                $this->data['page_title'] = $translation->page_title;
+                $this->data['page_description'] = $translation->page_description;
+                $this->data['page_keywords'] = $translation->page_keywords;
+                $this->data['title'] = $translation->title;
+                $this->data['content'] = $translation->content;
 
-                $this->render('public/'.$content_type . '_view');
+                $this->render('public/'.$content->content_type . '_view');
             }
         }
         else

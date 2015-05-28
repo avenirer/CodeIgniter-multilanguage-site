@@ -8,8 +8,8 @@ class Rake extends Admin_Controller
 		parent::__construct();
         if(!$this->ion_auth->in_group('admin'))
         {
-            $this->session->set_flashdata('message','You are not allowed to visit the RAKE page');
-            redirect('admin','refresh');
+            $this->postal->add('You are not allowed to visit the RAKE page','error');
+            redirect('admin');
         }
         $this->load->model('content_model');
         $this->load->model('content_translation_model');
@@ -38,6 +38,7 @@ class Rake extends Admin_Controller
             {
                 if($this->keyphrase_model->where('phrase_id',$phrase->id)->get())
                 {
+                    $now = date('Y-m-d H:i:s');
                     $new_words = array();
                     $words = explode('|',$phrase->phrase);
                     foreach($words as $word)
@@ -48,7 +49,6 @@ class Rake extends Admin_Controller
                     if($words != $new_words)
                     {
                         $words = implode('|',$new_words);
-                        $now = date('Y-m-d H:i:s');
                         if($another_phrase = $this->phrase_model->where(array('phrase'=>$words))->get())
                         {
                             $this->keyphrase_model->where('phrase_id',$phrase->id)->update(array('phrase_id'=>$another_phrase->id));
@@ -68,13 +68,14 @@ class Rake extends Admin_Controller
                     $this->phrase_model->delete($phrase->id);
                     $deleted++;
                 }
+                $this->phrase_model->update(array('last_check'=>$now),$phrase->id);
             }
             $message .= $modified.' key phrases were modified. ';
             $message .= $deleted.' phrases were deleted. ';
-            $this->session->set_flashdata('message', $message);;
+            $this->postal->add($message,'success');
 
         }
-        redirect('admin/rake','refresh');
+        redirect('admin/rake');
 	}
 
     public function analyze($language_slug,$content_id)
@@ -94,9 +95,7 @@ class Rake extends Admin_Controller
         $content = $this->content_model->get($content_id);
         $this->data['content_type'] = $content->content_type;
         $translation = $this->content_translation_model->where(array('language_slug'=>$language_slug,'content_id' => $content_id))->get();
-        $deleted_keyphrases = $this->keyphrase_model->where(array('content_id'=>$content_id,'language_slug'=>$language_slug))->delete();
-        //$deleted_keywords = $this->keyword_model->where(array('content_id'=>$content_id,'language_slug'=>$language_slug))->delete();
-        //$this->data['message'] = 'The key phrases were refreshed. ';
+        $this->keyphrase_model->where(array('content_id'=>$content_id,'language_slug'=>$language_slug))->delete();
 
 
         $text = strip_tags($translation->title).'. '.strip_tags($translation->content);
@@ -132,16 +131,6 @@ class Rake extends Admin_Controller
             }
         }
 
-
-
-        //echo '<pre>';
-        //print_r($blocks_as_arrays);
-        //echo '</pre>';
-
-        //echo '<pre>';
-        //print_r($words);
-        //echo '</pre>';
-
         $not_in_dictionary = array();
         foreach($words as $word)
         {
@@ -163,12 +152,9 @@ class Rake extends Admin_Controller
                 $noise_words[] = $noise->id;
             }
         }
-//        echo '<h1>Noise words</h1>';
-//        print_r($noise_words);
 
         $dictionary = $this->dictionary_model->where('language_slug',$language_slug)->where('verified','1')->where('word', $words)->get_all();
 
-        //echo '<h1>Dictionar</h1>';
         $word_ids = array();
 
         if(!empty($dictionary)) {
@@ -181,10 +167,6 @@ class Rake extends Admin_Controller
             }
         }
         ksort($word_ids);
-//        echo '<pre>';
-//        print_r($word_ids);
-//        echo '</pre>';
-
 
         $the_base_words = array();
         if(!empty($word_ids)) {
@@ -194,13 +176,6 @@ class Rake extends Admin_Controller
                 $the_base_words[$the_word->id] = $the_word->word;
             }
         }
-
-//        echo '<h1>Cuvintele de baza din dictionar</h1>';
-//        echo '<pre>';
-//        print_r($the_base_words);
-//        echo '</pre>';
-
-
 
         $degs = array(); //aici pastram toate cuvintele impreuna cu numarul aparitiilor
         $word_appearances = array();
@@ -233,26 +208,6 @@ class Rake extends Admin_Controller
             $blocks_as_ids[] = $block_as_ids;
         }
 
-        //echo '<h1>Inlocuim cuvintele cu id-urile cuvintelor</h1>';
-
-        //echo '<pre>';
-        //print_r($blocks_as_ids);
-        //echo '</pre>';
-        //exit;
-
-        //        echo '<h1>Avem entitatile cu numarul de aparitii</h1>';
-        //        arsort($word_appearances);
-        //        echo '<pre>';
-        //        print_r($word_appearances);
-        //        echo '</pre>';
-
-        //echo '<h1>Si scoatem entitatile intr-un array organizat dupa bloc de text si pozitie</h1>';
-        //echo '<pre>';
-        //arsort($degs);
-        //print_r($degs);
-        //echo '</pre>';
-
-        //echo '<h1>Nu ne intereseaza entitatile care au o singura aparitie</h1>';
         $candidate_words = array();
         foreach($word_appearances as $key=>$word)
         {
@@ -261,10 +216,6 @@ class Rake extends Admin_Controller
                 $candidate_words[$key] = $word;
             }
         }
-        //echo '<pre>';
-        //print_r($candidate_words);
-        //echo '</pre>';
-        // exit;
 
 
         $initial_phrases = array();
@@ -280,11 +231,9 @@ class Rake extends Admin_Controller
                     {
                         if(array_key_exists(($loc + $k),$blocks_as_ids[$block_key]))
                         {
-                            //echo $blocks_as_ids[$block_key][($loc + $k)].'<br />';
                             $new_key .= $blocks_as_ids[$block_key][($loc + $k)];
                             $new_key .= '|';
                             $trim_new_key = rtrim($new_key,'|');
-                            //echo $trim_new_key.'<br />';
                             if (!array_key_exists($trim_new_key, $initial_phrases)) {
                                 $initial_phrases[$trim_new_key] = 1;
                             } else {
@@ -300,19 +249,10 @@ class Rake extends Admin_Controller
             }
         }
 
-        //echo '<h1>Numarul de aparitii ale frazelor de text</h1>';
-        //echo '<pre>';
-        //print_r($initial_phrases);
-        //echo '</pre>';
-
-
-        //eliminam cuvintele zgomot de la sfarsitul frazelor
-
         foreach($initial_phrases as $phrase=>$freq)
         {
             $phrase_words = explode('|',$phrase);
             $number_words = sizeof($phrase_words);
-            //echo '<br />phrase '.$phrase.'<br />';
             for($i=(sizeof($phrase_words)-1);$i>0;$i--)
             {
                 if(in_array($phrase_words[$i],$noise_words))
@@ -342,7 +282,6 @@ class Rake extends Admin_Controller
 
         }
 
-        //echo '<h1>Nu luam in considerare "frazele" care au un singur cuvant</h1>';
         $candidate_phrases = array();
         $previous_key = '';
         foreach($initial_phrases as $phrase_key => $deg)
@@ -353,12 +292,6 @@ class Rake extends Admin_Controller
             }
             $previous_key = $phrase_key;
         }
-        //echo '<pre>';
-        //print_r($candidate_phrases);
-        //echo '</pre>';
-
-
-        //echo '<h1>Frecventa entitatilor in combinatii de fraze</h1>';
 
         $previous_key = '';
         $word_frequencies = array();
@@ -379,11 +312,7 @@ class Rake extends Admin_Controller
             $previous_key = $phrase_key;
         }
 
-
-        //echo '<pre>';
         arsort($word_frequencies);
-        //print_r($word_frequencies);
-        //echo '</pre>';
 
         $extracted_phrases = array();
         foreach($candidate_phrases as $phrase_keys => $appearances)
@@ -407,12 +336,7 @@ class Rake extends Admin_Controller
             }
             $extracted_phrases[$phrase_keys] = number_format($score,2) * $appearances;
         }
-
-        //echo '<h1>Calculam scorurile pentru fraze</h1>';
-        //echo '<pre>';
         arsort($extracted_phrases);
-        //print_r($extracted_phrases);
-        //echo '</pre>';
 
         $the_words = array();
         foreach($word_appearances as $key => $number)
@@ -436,38 +360,21 @@ class Rake extends Admin_Controller
 
         $the_phrases = array();
 
-        /*
-        echo '<pre>';
-        print_r($extracted_phrases);
-        echo '</pre>';
-        exit;
-        */
-
         if(!empty($extracted_phrases))
         {
+            $now = date('Y-m-d H:i:s');
             foreach ($extracted_phrases as $key => $score)
             {
                 if ($this->phrase_model->where(array('phrase'=>$key,'language_slug'=>$language_slug))->get() === FALSE)
                 {
-                    $phrase_id = $this->phrase_model->insert(array('phrase'=>$key,'language_slug'=>$language_slug));
+                    $phrase_id = $this->phrase_model->insert(array('phrase'=>$key,'language_slug'=>$language_slug,'last_check'=>$now));
                 }
                 else
                 {
                     $phrase = $this->phrase_model->where(array('phrase'=>$key,'language_slug'=>$language_slug))->get();
                     $phrase_id = $phrase->id;
                 }
-                $this->load->model('keyphrase_model');
-                {
-                    if($this->keyphrase_model->where(array('content_id'=>$content_id,'phrase_id'=>$phrase_id,'language_slug'=>$language_slug))->get() === FALSE)
-                    {
-                        $this->keyphrase_model->insert(array('content_id'=>$content_id,'phrase_id'=>$phrase_id,'language_slug'=>$language_slug));
-                    }
-                    else
-                    {
-                        $phrase_score = $this->keyphrase_model->where(array('content_id'=>$content_id,'phrase_id'=>$phrase_id,'language_slug'=>$language_slug))->get();
-                        $this->keyphrase_model->update(array('content_id'=>$content_id,'phrase_id'=>$phrase_id,'language_slug'=>$language_slug,'score'=>$score),$phrase_score->id);
-                    }
-                }
+                $this->keyphrase_model->insert(array('content_id'=>$content_id,'phrase_id'=>$phrase_id,'language_slug'=>$language_slug,'score'=>$score));
             }
             $this->content_translation_model->where(array('content_id'=>$content_id, 'language_slug'=>$language_slug))->update(array('rake'=>'1'));
         }
@@ -500,13 +407,6 @@ class Rake extends Admin_Controller
         }
 
         array_multisort($score, SORT_DESC, $the_words);
-
-        /*
-        echo '<pre>';
-        print_r($the_phrases);
-        echo '</pre>';
-        exit;
-        */
         $this->data['the_words'] = $the_words;
         $this->data['the_phrases'] = $the_phrases;
 
@@ -542,7 +442,7 @@ class Rake extends Admin_Controller
     {
         if($keyword = $this->keyword_model->where(array('word_id'=>$word_id,'content_id'=>$content_id,'language_slug'=>$language_slug))->get())
         {
-            $this->session->set_flashdata('message', 'The keyword was deleted.');
+            $this->postal->add('The keyword was deleted.','success');
             $this->keyword_model->delete($keyword->id);
         }
         else
@@ -550,11 +450,11 @@ class Rake extends Admin_Controller
             $insert_data = array('word_id'=>$word_id,'content_id'=>$content_id,'language_slug'=>$language_slug,'appearances'=>$appearances);
             if($this->keyword_model->insert($insert_data))
             {
-                $this->session->set_flashdata('message', 'The keyword was inserted.');
+                $this->postal->add('The keyword was inserted.','success');
             }
 
         }
-        redirect('admin/rake/analyze/'.$language_slug.'/'.$content_id,'refresh');
+        redirect('admin/rake/analyze/'.$language_slug.'/'.$content_id);
 
     }
 
@@ -562,9 +462,9 @@ class Rake extends Admin_Controller
     {
         if($this->keyword_model->where(array('word_id'=>$word_id,'content_id'=>$content_id,'language_slug'=>$language_slug))->update(array('appearances'=>$appearances)))
         {
-            $this->session->set_flashdata('message', 'The keyword was updated.');
+            $this->postal->add('The keyword was updated.','success');
         }
-        redirect('admin/rake/analyze/'.$language_slug.'/'.$content_id,'refresh');
+        redirect('admin/rake/analyze/'.$language_slug.'/'.$content_id);
     }
 
 

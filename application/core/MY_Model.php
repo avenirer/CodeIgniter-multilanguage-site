@@ -150,6 +150,8 @@ class MY_Model extends CI_Model
 
     private $_trashed = 'without';
 
+    private $_select = '*';
+
 
     public function __construct()
     {
@@ -512,6 +514,18 @@ class MY_Model extends CI_Model
     }
 
     /**
+    -     * public function group_by($grouping_by)
+    -     * A wrapper to $this->_database->group_by()
+    -     * @param $grouping_by
+    -     * @return $this
+    -     */
+    public function group_by($grouping_by)
+    {
+        $this->_database->group_by($grouping_by);
+        return $this;
+    }
+
+    /**
      * public function delete($where)
      * Deletes data from table.
      * @param $where
@@ -629,6 +643,7 @@ class MY_Model extends CI_Model
         else
         {
             $this->trigger('before_get');
+            $this->_database->select($this->_select);
             $this->where($where);
             $this->limit(1);
             $query = $this->_database->get($this->table);
@@ -680,6 +695,7 @@ class MY_Model extends CI_Model
         {
             $this->trigger('before_get');
             $this->where($where);
+            $this->_database->select($this->_select);
             $query = $this->_database->get($this->table);
             if($query->num_rows() > 0)
             {
@@ -998,7 +1014,7 @@ class MY_Model extends CI_Model
         if(isset($fields))
         {
             $fields = (is_array($fields)) ? implode(',',$fields) : $fields;
-            $this->_database->select($fields);
+            $this->_select = $fields;
         }
         return $this;
     }

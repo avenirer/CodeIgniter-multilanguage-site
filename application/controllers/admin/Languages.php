@@ -5,7 +5,12 @@ class Languages extends Admin_Controller
 
 	function __construct()
 	{
-		parent::__construct();
+        parent::__construct();
+        if(!$this->ion_auth->in_group('admin'))
+        {
+            $this->postal->add('You are not allowed to visit the Languages page','error');
+            redirect('admin');
+        }
 		$this->load->library('form_validation');
 		$this->load->model('language_model');
 	}
@@ -33,12 +38,16 @@ class Languages extends Admin_Controller
 				'language_code' => $this->input->post('language_code'),
 				'default' => $this->input->post('default')
 			);
-			$this->session->set_flashdata('message', 'Language added successfully');
+
 			if (!$this->language_model->insert($new_language))
 			{
-				$this->session->set_flashdata('message', 'There was an error inserting the new language');
+                $this->postal->add('There was an error inserting the new language','error');
 			}
-			redirect('admin/languages', 'refresh');
+            else
+            {
+                $this->postal->add('Language added successfully','success');
+            }
+			redirect('admin/languages');
 		}
 	}
 
@@ -57,8 +66,8 @@ class Languages extends Admin_Controller
 			}
 			else
 			{
-				$this->session->set_flashdata('message', 'The ID for the language doesn\'t exist');
-				redirect('admin/languages', 'refresh');
+                $this->postal->add('The ID for the language doesn\'t exist','error');
+				redirect('admin/languages');
 			}
 		}
 		else
@@ -70,12 +79,16 @@ class Languages extends Admin_Controller
 				'language_code' => $this->input->post('language_code'),
 				'default' => $this->input->post('default')
 			);
-			$this->session->set_flashdata('message', 'Language updated successfully');
+
 			if (!$this->language_model->update($new_data, $language_id))
 			{
-				$this->session->set_flashdata('message', 'There was an error in updating the language');
+                $this->postal->add('There was an error in updating the language','error');
 			}
-			redirect('admin/languages', 'refresh');
+            else
+            {
+                $this->postal->add('Language updated successfully','success');
+            }
+			redirect('admin/languages');
 		}
 	}
 
@@ -83,16 +96,16 @@ class Languages extends Admin_Controller
 	{
 		if(($language = $this->language_model->get($language_id)) && $language->default == '1')
 		{
-			$this->session->set_flashdata('message','I can\'t delete a default language. First set another default language.');
+            $this->postal->add('I can\'t delete a default language. First set another default language.','error');
 		}
 		elseif($this->language_model->delete($language_id) === FALSE)
 		{
-			$this->session->set_flashdata('message', 'There was an error in deleting the language');
+            $this->postal->add('There was an error in deleting the language','error');
 		}
 		else
 		{
-			$this->session->set_flashdata('message', 'Language deleted successfully');
+            $this->postal->add('Language deleted successfully','success');
 		}
-		redirect('admin/languages','refresh');
+		redirect('admin/languages');
 	}
 }

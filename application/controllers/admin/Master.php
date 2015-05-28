@@ -10,8 +10,8 @@ class Master extends Admin_Controller
         parent::__construct();
         if(!$this->ion_auth->in_group('admin'))
         {
-            $this->session->set_flashdata('message','You are not allowed to visit the MASTER page');
-            redirect('admin','refresh');
+            $this->postal->add('You are not allowed to visit the MASTER page','error');
+            redirect('admin');
         }
         $this->load->model('website_model');
         $this->load->library('form_validation');
@@ -63,11 +63,13 @@ class Master extends Admin_Controller
 
             if($this->website_model->update($update_data))
             {
-                $message = 'The website\'s data has been saved. Good luck!';
+                $this->postal->add('The website\'s data has been saved. Good luck!','success');
             }
-            else $message = 'There was a problem... Are you sure you\'ve changed anything?';
-            $this->session->set_flashdata('message',$message);
-            redirect('admin/master','refresh');
+            else
+            {
+                $this->postal->add('There was a problem... Are you sure you\'ve changed anything?','error');
+            }
+            redirect('admin/master');
         }
     }
 
@@ -77,14 +79,13 @@ class Master extends Admin_Controller
         $new_status = ($this->website->status == '1') ? '0' : '1';
         if($this->website_model->update(array('status'=>$new_status,'modified_by'=>$this->user_id)))
         {
-            $message = 'The website is ' . (($new_status == '1') ? 'ONLINE' : 'OFFLINE');
+            $this->postal->add('The website is ' . (($new_status == '1') ? 'ONLINE' : 'OFFLINE'),'success');
         }
         else
         {
-            $message = 'Couldn\'t change the status of the site';
+            $this->postal->add('Couldn\'t change the status of the site','error');
         }
-        $this->session->set_flashdata('message',$message);
-        redirect('admin/master','refresh');
+        redirect('admin/master');
     }
 
     public function add_ip()
@@ -94,16 +95,16 @@ class Master extends Admin_Controller
         $this->form_validation->set_rules($rules['insert']);
         if($this->form_validation->run()===FALSE)
         {
-            $this->session->set_flashdata('message','Couldn\' insert banned IP');
-            redirect('admin/master','refresh');
+            $this->postal->add('Couldn\' insert banned IP','success');
+            redirect('admin/master');
         }
         else
         {
             $ip = $this->input->post('ip');
             if($this->banned_model->insert(array('ip'=>$ip,'created_by'=>$this->user_id)))
             {
-                $this->session->set_flashdata('message','IP inserted successfully');
-                redirect('admin/master','refresh');
+                $this->postal->add('IP inserted successfully','success');
+                redirect('admin/master');
             }
         }
 
@@ -111,12 +112,16 @@ class Master extends Admin_Controller
 
     public function remove_ip($ip)
     {
-        $this->session->set_flashdata('message','Couldn\' remove banned IP');
+
         $this->load->model('banned_model');
         if($this->banned_model->delete($ip))
         {
-            $this->session->set_flashdata('message','Banned IP was deleted');
+            $this->postal->add('Banned IP was deleted','success');
         }
-        redirect('admin/master','refresh');
+        else
+        {
+            $this->postal->add('Couldn\' remove banned IP','error');
+        }
+        redirect('admin/master');
     }
 }

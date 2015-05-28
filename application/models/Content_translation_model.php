@@ -10,7 +10,7 @@ class Content_translation_model extends MY_Model
 
     public function __construct()
     {
-        $this->has_one['page'] = array('Content_model','id','content_id');
+        $this->has_one['content'] = array('Content_model','id','content_id');
         parent::__construct();
     }
 }
