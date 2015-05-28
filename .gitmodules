@@ -1,3 +1,0 @@
-[submodule "My_model"]
-    path = application/core/MY_Model.php
-    url = https://github.com/avenirer/CodeIgniter-MY_Model/blob/version-3.0/MY_Model.php
