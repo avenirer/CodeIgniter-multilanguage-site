@@ -43,3 +43,6 @@ Temporary Items
 .apdisk
 .idea
 system
+media
+uploads
+.gitignore
