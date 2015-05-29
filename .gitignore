@@ -46,3 +46,4 @@ system
 media
 uploads
 .gitignore
+application/cache
