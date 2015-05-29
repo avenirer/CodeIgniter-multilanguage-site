@@ -43,10 +43,6 @@ class User extends MY_Controller
             $remember = (bool) $this->input->post('remember');
             if ($this->ion_auth->login($this->input->post('identity'), $this->input->post('password'), $remember))
             {
-                //echo 'bau';
-                //echo '<br />'.$redirect_to;
-                //exit;
-                //$redirect_to = $this->input->post('redirect_to');
                 redirect('admin');
             }
             else
