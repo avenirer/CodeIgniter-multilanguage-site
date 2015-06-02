@@ -1,9 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-/**
- * GET THE LAST MY_Model FROM https://github.com/avenirer/CodeIgniter-MY_Model
- *
- * how to extend MY_Model:
+/** how to extend MY_Model:
  *	class User_model extends MY_Model
  *	{
  *      public $table = 'users'; // Set the name of the table for this model.
@@ -18,7 +15,7 @@
  *          $this->timestamps = TRUE | array('made_at','modified_at','removed_at')
  *              If set to TRUE tells MY_Model that the table has 'created_at','updated_at' (and 'deleted_at' if $this->soft_delete is set to TRUE)
  *              If given an array as parameter, it tells MY_Model, that the first element is a created_at field type, the second element is a updated_at field type (and the third element is a deleted_at field type)
- *          $this->soft_deletes = FALSE
+ *          $this->soft_deletes = FALSE;
  *              Enables (TRUE) or disables (FALSE) the "soft delete" on records. Default is FALSE
  *          $this->return_as = 'object' | 'array'
  *              Allows the model to return the results as object or as array
@@ -819,9 +816,9 @@ class MY_Model extends CI_Model
             }
             else
             {
-                $this->_database->join($pivot_table, $foreign_table.'.'.$foreign_key.' = '.$pivot_table.'.'.singular($foreign_table).'_'.$foreign_key, 'right');
-                $this->_database->join($this->table, $pivot_table.'.'.singular($this->table).'_'.$local_key.' = '.$this->table.'.'.$local_key,'right');
-
+                $this->_database->join($pivot_table, $foreign_table.'.'.$foreign_key.' = '.$pivot_table.'.'.singular($foreign_table).'_'.$foreign_key, 'inner');
+                $this->_database->join($this->table, $pivot_table.'.'.singular($this->table).'_'.$local_key.' = '.$this->table.'.'.$local_key,'inner');
+                // testing
                 if(!empty($request['parameters']))
                 {
                     if(array_key_exists('fields',$request['parameters']))
@@ -841,7 +838,7 @@ class MY_Model extends CI_Model
                         $this->_database->where($request['parameters']['where'],NULL,NULL,FALSE,FALSE,TRUE);
                     }
                 }
-
+                // end testing
                 $this->_database->where_in($this->table.'.'.$local_key,$local_key_values);
                 $sub_results = $this->_database->get($foreign_table)->result_array();
                 $this->_database->reset_query();
