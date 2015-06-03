@@ -28,11 +28,11 @@ class Dictionary extends Admin_Controller
         $word = urldecode($word);
         if($word_id = $this->dictionary_model->insert(array('word'=>$word,'language_slug'=>$language_slug,'verified'=>'0')))
         {
-            $this->session->set_flashdata('message', 'The word was inserted.');
+            $this->postal->add('The word was inserted.','success');
         }
         else
         {
-            $this->session->set_flashdata('message', 'Couldn\'t insert word.');
+            $this->postal->add('Couldn\'t insert word.','error');
         }
         redirect('admin/rake/analyze/'.$language_slug.'/'.$content_id.'/#add_words');
     }
@@ -92,11 +92,11 @@ $(\'#root_word_options\').textext({
             $insert_data['verified'] = '1';
             if ($word_id = $this->dictionary_model->insert($insert_data))
             {
-                $this->session->set_flashdata('message', 'The word was inserted.');
+                $this->postal->add('The word was inserted.','success');
             }
             else
             {
-                $this->session->set_flashdata('message', 'Couldn\'t insert word.');
+                $this->postal->add('Couldn\'t insert word.','error');
             }
 
             echo '<script>window.close();</script>';
@@ -188,11 +188,11 @@ $(\'#root_word_options\').textext({
             }
             if($this->dictionary_model->update($update_data,$word_id))
             {
-                $this->session->set_flashdata('message', 'The word was updated successfuly.');
+                $this->postal->add('The word was updated successfuly','success');
             }
             else
             {
-                $this->session->set_flashdata('message', 'Couldn\'t update word.');
+                $this->postal->add('Couldn\'t update word','error');
             }
             //$letter = substr($the_word, 0, 1);
             echo '<script>window.close();</script>';
@@ -211,7 +211,7 @@ $(\'#root_word_options\').textext({
         //$this->data['root_word'] = '';
         $child_words = $this->dictionary_model->where('parent_id', $word->id)->update(array('parent_id' => '0', 'verified' => '0'));
         $deleted = $this->dictionary_model->delete($word->id);
-        $this->session->set_flashdata('message', 'The word ' . $the_word . ' was deleted. Also there were ' . $child_words . ' that had the status changed');
+        $this->postal->add('The word ' . $the_word . ' was deleted. Also there were ' . $child_words . ' that had the status changed','success');
         redirect('admin/dictionary/index/' . $language_slug, 'refresh');
     }
 }
