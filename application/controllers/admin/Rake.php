@@ -34,11 +34,11 @@ class Rake extends Admin_Controller
             $message = '';
             $modified = 0;
             $deleted = 0;
+            $now = date('Y-m-d H:i:s');
             foreach($phrases as $phrase)
             {
                 if($this->keyphrase_model->where('phrase_id',$phrase->id)->get())
                 {
-                    $now = date('Y-m-d H:i:s');
                     $new_words = array();
                     $words = explode('|',$phrase->phrase);
                     foreach($words as $word)
