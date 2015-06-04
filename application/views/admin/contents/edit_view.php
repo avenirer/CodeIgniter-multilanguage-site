@@ -118,10 +118,17 @@
                 ?>
             <div class="form-group">
                 <?php
-                echo form_label('Published at','published_at');
+                echo form_label('Published at', 'published_at');
                 echo form_error('published_at');
-                echo form_input('published_at',set_value('published_at',$content->published_at),'class="form-control"');
                 ?>
+                <div class="input-group date datetimepicker">
+                    <?php
+                    echo form_input('published_at', set_value('published_at', $content->published_at), 'class="form-control"');
+                    ?>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
             </div>
             <?php
             }

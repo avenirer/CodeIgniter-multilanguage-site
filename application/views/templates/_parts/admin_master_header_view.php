@@ -7,23 +7,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?php echo $page_title;?></title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script type="text/javascript" src="<?php echo site_url('assets/admin/js/moment.js');?>"></script>
         <link href="<?php echo site_url('assets/admin/css/bootstrap.min.css');?>" rel="stylesheet">
+        <link href="<?php echo site_url('assets/admin/css/bootstrap-datetimepicker.min.css');?>" rel="stylesheet">
         <?php echo $before_head;?>
         <link rel="stylesheet" href="<?php echo site_url('assets/admin/css/textext/textext.core.css');?>" type="text/css" />
-        <!--<link rel="stylesheet" href="<?php echo site_url('assets/admin/css/textext/textext.plugin.tags.css');?>" type="text/css" />-->
         <link rel="stylesheet" href="<?php echo site_url('assets/admin/css/textext/textext.plugin.autocomplete.css');?>" type="text/css" />
-        <!--<link rel="stylesheet" href="<?php echo site_url('assets/admin/css/textext/textext.plugin.focus.css');?>" type="text/css" />-->
-        <!--<link rel="stylesheet" href="<?php echo site_url('assets/admin/css/textext/textext.plugin.prompt.css');?>" type="text/css" />-->
-        <!--<link rel="stylesheet" href="<?php echo site_url('assets/admin/css/textext/textext.plugin.arrow.css');?>" type="text/css" />-->
         <script src="<?php echo site_url('assets/admin/js/textext.core.js');?>" type="text/javascript" charset="utf-8"></script>
-        <!--<script src="<?php echo site_url('assets/admin/js/textext.plugin.tags.js');?>" type="text/javascript" charset="utf-8"></script>-->
         <script src="<?php echo site_url('assets/admin/js/textext.plugin.autocomplete.js');?>" type="text/javascript" charset="utf-8"></script>
-        <!--<script src="<?php echo site_url('assets/admin/js/textext.plugin.suggestions.js');?>" type="text/javascript" charset="utf-8"></script>-->
         <script src="<?php echo site_url('assets/admin/js/textext.plugin.filter.js');?>" type="text/javascript" charset="utf-8"></script>
-        <!--<script src="<?php echo site_url('assets/admin/js/textext.plugin.focus.js');?>" type="text/javascript" charset="utf-8"></script>-->
-        <!--<script src="<?php echo site_url('assets/admin/js/textext.plugin.prompt.js');?>" type="text/javascript" charset="utf-8"></script>-->
         <script src="<?php echo site_url('assets/admin/js/textext.plugin.ajax.js');?>" type="text/javascript" charset="utf-8"></script>
-        <!--<script src="<?php echo site_url('assets/admin/js/textext.plugin.arrow.js');?>" type="text/javascript" charset="utf-8"></script>-->
         <script type="text/javascript" src="<?php echo site_url('assets/admin/js/tinymce/tinymce.min.js');?>"></script>
         <script type="text/javascript">
             tinymce.init({
