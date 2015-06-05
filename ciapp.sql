@@ -5,9 +5,7 @@ SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
-CREATE DATABASE `ciapp` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `ciapp`;
-
+DROP TABLE IF EXISTS `banned`;
 CREATE TABLE `banned` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ip` varchar(15) NOT NULL,
@@ -20,10 +18,8 @@ CREATE TABLE `banned` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `banned` (`id`, `ip`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`, `deleted_by`) VALUES
-(2,	'100.10.25.40',	'2015-05-19 16:37:54',	'0000-00-00 00:00:00',	'0000-00-00 00:00:00',	1,	0,	0),
-(3,	'91.220.13.30',	'2015-05-19 16:38:04',	'0000-00-00 00:00:00',	'0000-00-00 00:00:00',	1,	0,	0);
 
+DROP TABLE IF EXISTS `ci_sessions`;
 CREATE TABLE `ci_sessions` (
   `id` varchar(40) NOT NULL,
   `ip_address` varchar(45) NOT NULL,
@@ -34,6 +30,7 @@ CREATE TABLE `ci_sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS `contents`;
 CREATE TABLE `contents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `content_type` varchar(100) NOT NULL,
@@ -51,8 +48,11 @@ CREATE TABLE `contents` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+INSERT INTO `contents` (`id`, `content_type`, `parent_id`, `featured_image`, `order`, `published`, `published_at`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`, `deleted_by`) VALUES
+(25,	'category',	0,	'',	0,	1,	'2015-05-26 13:42:47',	'2015-05-26 13:42:55',	'2015-05-28 15:08:21',	NULL,	1,	1,	0),
+(27,	'page',	0,	'',	0,	0,	'2015-06-05 13:53:57',	'2015-06-05 13:54:19',	'2015-06-05 13:58:35',	NULL,	1,	1,	0);
 
-
+DROP TABLE IF EXISTS `content_translations`;
 CREATE TABLE `content_translations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `content_id` int(11) NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE `content_translations` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-
+DROP TABLE IF EXISTS `dictionary`;
 CREATE TABLE `dictionary` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_id` int(11) NOT NULL DEFAULT '0',
@@ -90,6 +90,7 @@ CREATE TABLE `dictionary` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
@@ -97,10 +98,8 @@ CREATE TABLE `groups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `groups` (`id`, `name`, `description`) VALUES
-(1,	'admin',	'Administrators'),
-(2,	'members',	'Members');
 
+DROP TABLE IF EXISTS `images`;
 CREATE TABLE `images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `content_type` varchar(100) NOT NULL,
@@ -119,9 +118,10 @@ CREATE TABLE `images` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS `keyphrases`;
 CREATE TABLE `keyphrases` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `content_type` varchar(255) NOT NULL,
+  `content_type` varchar(100) NOT NULL,
   `content_id` int(10) unsigned NOT NULL,
   `phrase_id` int(10) unsigned NOT NULL,
   `language_slug` varchar(10) NOT NULL,
@@ -129,6 +129,8 @@ CREATE TABLE `keyphrases` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS `keywords`;
 CREATE TABLE `keywords` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `content_type` varchar(255) NOT NULL,
@@ -139,6 +141,8 @@ CREATE TABLE `keywords` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS `languages`;
 CREATE TABLE `languages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `language_name` varchar(100) NOT NULL,
@@ -149,10 +153,8 @@ CREATE TABLE `languages` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `languages` (`id`, `language_name`, `slug`, `language_directory`, `language_code`, `default`) VALUES
-(1,	'Română',	'ro',	'romanian',	'ro_RO',	1),
-(8,	'English',	'en',	'english',	'en_US',	0);
 
+DROP TABLE IF EXISTS `login_attempts`;
 CREATE TABLE `login_attempts` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `ip_address` varchar(15) NOT NULL,
@@ -162,6 +164,7 @@ CREATE TABLE `login_attempts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS `menus`;
 CREATE TABLE `menus` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(200) NOT NULL,
@@ -174,9 +177,8 @@ CREATE TABLE `menus` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `menus` (`id`, `title`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`, `deleted_by`) VALUES
-(2,	'top-menu',	'2015-05-04 12:25:23',	NULL,	NULL,	1,	0,	0);
 
+DROP TABLE IF EXISTS `menu_items`;
 CREATE TABLE `menu_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `menu_id` int(11) unsigned NOT NULL,
@@ -192,11 +194,8 @@ CREATE TABLE `menu_items` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `menu_items` (`id`, `menu_id`, `parent_id`, `order`, `styling`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`, `deleted_by`) VALUES
-(3,	2,	0,	0,	NULL,	'2015-05-05 09:53:14',	'2015-05-05 14:29:05',	NULL,	1,	1,	0),
-(4,	2,	0,	0,	NULL,	'2015-05-05 09:53:40',	'2015-05-05 10:45:37',	NULL,	1,	1,	0),
-(5,	2,	4,	0,	NULL,	'2015-05-05 14:05:29',	'2015-05-05 14:05:29',	NULL,	1,	1,	0);
 
+DROP TABLE IF EXISTS `menu_item_translations`;
 CREATE TABLE `menu_item_translations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `item_id` int(11) NOT NULL,
@@ -214,13 +213,8 @@ CREATE TABLE `menu_item_translations` (
   KEY `item_id` (`item_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `menu_item_translations` (`id`, `item_id`, `language_slug`, `title`, `url`, `absolute_path`, `created_at`, `updated_at`, `deleted_at`, `created_by`, `updated_by`, `deleted_by`) VALUES
-(8,	3,	'en',	'First item',	'#',	0,	'2015-05-05 10:45:28',	NULL,	NULL,	1,	0,	0),
-(6,	3,	'ro',	'Primul item',	'#',	1,	'2015-05-05 09:53:14',	'2015-05-05 14:29:05',	NULL,	1,	1,	0),
-(7,	4,	'ro',	'Al doilea item',	'#',	0,	'2015-05-05 09:53:40',	'2015-05-05 10:45:14',	NULL,	1,	1,	0),
-(9,	4,	'en',	'Second item',	'#',	0,	'2015-05-05 10:45:37',	NULL,	NULL,	1,	0,	0),
-(10,	5,	'ro',	'Un alt item',	'#',	0,	'2015-05-05 14:05:29',	NULL,	NULL,	1,	0,	0);
 
+DROP TABLE IF EXISTS `phrases`;
 CREATE TABLE `phrases` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `phrase` varchar(255) NOT NULL,
@@ -230,7 +224,7 @@ CREATE TABLE `phrases` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-
+DROP TABLE IF EXISTS `slugs`;
 CREATE TABLE `slugs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `content_type` varchar(150) NOT NULL,
@@ -250,6 +244,7 @@ CREATE TABLE `slugs` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `ip_address` varchar(15) NOT NULL,
@@ -271,9 +266,8 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `users` (`id`, `ip_address`, `username`, `password`, `salt`, `email`, `activation_code`, `forgotten_password_code`, `forgotten_password_time`, `remember_code`, `created_on`, `last_login`, `active`, `first_name`, `last_name`, `company`, `phone`) VALUES
-(1,	'127.0.0.1',	'administrator',	'$2y$08$G0h47xFzvBDD3DjwWD13XeCfwGuZgqtSodh5ARhDJLLWPRv0jSgfG',	'',	'admin@admin.com',	'',	NULL,	NULL,	NULL,	1268889823,	1432619830,	1,	'Admin',	'istrator',	'ADMIN',	'0');
 
+DROP TABLE IF EXISTS `users_groups`;
 CREATE TABLE `users_groups` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) unsigned NOT NULL,
@@ -286,9 +280,8 @@ CREATE TABLE `users_groups` (
   CONSTRAINT `users_groups_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `users_groups` (`id`, `user_id`, `group_id`) VALUES
-(3,	1,	1);
 
+DROP TABLE IF EXISTS `website`;
 CREATE TABLE `website` (
   `title` varchar(255) NOT NULL,
   `page_title` varchar(255) NOT NULL,
@@ -298,7 +291,5 @@ CREATE TABLE `website` (
   `modified_by` varchar(200) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `website` (`title`, `page_title`, `status`, `admin_email`, `contact_email`, `modified_by`) VALUES
-('CI site',	'CI site',	1,	'avenir.ro@gmail.com',	'avenir.ro@gmail.com',	'1');
 
--- 2015-05-26 13:22:33
+-- 2015-06-05 11:45:10
