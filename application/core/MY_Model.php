@@ -259,7 +259,18 @@ class MY_Model extends CI_Model
         return $data;
     }
 
-    public function from_form($rules = NULL,$row_fields_to_update = array())
+    /**
+     * public function from_form($rules = NULL,$additional_values = NULL, $row_fields_to_update = array())
+     * Gets data from form, after validating it and waits for an insert() or update() method in the query chain
+     * @param null $rules Gets the validation rules. If nothing is passed (NULL), will look for the validation rules
+     * inside the model $rules public property
+     * @param array $additional_values Accepts additional fields to be filled, fields that are not to be found inside
+     * the form. The additional values are inserted as an array with "field_name" => "field_value"
+     * @param array $row_fields_to_update You can mention the fields from the form that can be used to identify
+     * the row when doing an update
+     * @return $this
+     */
+    public function from_form($rules = NULL,$additional_values = NULL, $row_fields_to_update = array())
     {
         $this->_get_table_fields();
         $this->load->library('form_validation');
@@ -272,9 +283,22 @@ class MY_Model extends CI_Model
         {
             $this->fillable_fields();
             $this->validated = array();
-            foreach($this->_can_be_filled as $field)
+            foreach($rules as $rule)
             {
-                $this->validated[$field] = $this->input->post($field);
+                if(in_array($rule['field'],$this->_can_be_filled))
+                {
+                    $this->validated[$rule['field']] = $this->input->post($rule['field']);
+                }
+            }
+            if(is_array($additional_values) && !empty($additional_values))
+            {
+                foreach($additional_values as $field => $value)
+                {
+                    if(in_array($field, $this->_can_be_filled))
+                    {
+                        $this->validated[$field] = $value;
+                    }
+                }
             }
 
             if(!empty($row_fields_to_update))
@@ -309,7 +333,7 @@ class MY_Model extends CI_Model
             $data = $this->validated;
             $this->validated = FALSE;
         }
-        else
+        elseif(!isset($data))
         {
             return FALSE;
         }
@@ -891,7 +915,7 @@ class MY_Model extends CI_Model
                         $select = array();
                         foreach($fields as $field)
                         {
-                            $select[] = '`'.$foreign_table.'`.\''.trim($field).'\`';
+                            $select[] = '`'.$foreign_table.'`.`'.trim($field).'`';
                         }
                         $the_select = implode(',',$select);
                         $this->_database->select($the_select);

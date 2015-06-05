@@ -73,24 +73,23 @@ class Contents extends Admin_Controller
             $published_at = $this->input->post('published_at');
             if ($content_id == 0)
             {
-                $insert_content = array('content_type'=>$content_type,'published_at'=>$published_at, 'parent_id' => $parent_id, 'created_by'=>$this->user_id);
+                $insert_content = array('content_type'=>$content_type,'published_at'=>$published_at, 'parent_id' => $parent_id);
                 $content_id = $this->content_model->insert($insert_content);
             }
 
-            $insert_translation = array('content_id'=>$content_id,'title' => $title, 'short_title' => $short_title, 'teaser' => $teaser,'content' => $content,'page_title' => $page_title, 'page_description' => $page_description,'page_keywords' => $page_keywords,'language_slug' => $language_slug,'created_by'=>$this->user_id);
+            $insert_translation = array('content_id'=>$content_id,'title' => $title, 'short_title' => $short_title, 'teaser' => $teaser,'content' => $content,'page_title' => $page_title, 'page_description' => $page_description,'page_keywords' => $page_keywords,'language_slug' => $language_slug);
 
             if($translation_id = $this->content_translation_model->insert($insert_translation))
             {
-                $this->content_model->update(array('published_at'=>$published_at,'parent_id'=>$parent_id, 'order'=>$order,'updated_by'=>$this->user_id),$content_id);
-                $url = $this->_verify_slug($slug,$language_slug);
-                $this->slug_model->insert(array(
+                $this->content_model->update(array('published_at'=>$published_at,'parent_id'=>$parent_id, 'order'=>$order),$content_id);
+
+                $insert_slug = array(
                     'content_type'=> $content_type,
                     'content_id'=>$content_id,
                     'translation_id'=>$translation_id,
                     'language_slug'=>$language_slug,
-                    'url'=>$url,
-                    'created_by'=>$this->user_id));
-                //$this->slug_model->where(array('content_type'=>'page','content_id'=>$page_id,'id !='=>$slug_id))->update(array('redirect'=>$slug_id));
+                    'url'=>$slug);
+                $this->slug_model->verify_insert($insert_slug);
             }
 
             redirect('admin/contents/index/'.$content_type,'refresh');
@@ -154,28 +153,22 @@ class Contents extends Admin_Controller
                     'content' => $content,
                     'page_title' => $page_title,
                     'page_description' => $page_description,
-                    'page_keywords' => $page_keywords,
-                    'updated_by' => $this->user_id);
+                    'page_keywords' => $page_keywords);
 
                 if ($this->content_translation_model->update($update_translation, $translation_id))
                 {
-                    $update_content = array('parent_id' => $parent_id, 'published_at' => $published_at, 'order' => $order, 'updated_by' => $this->user_id);
+                    $update_content = array('parent_id' => $parent_id, 'published_at' => $published_at, 'order' => $order);
 
                     $this->content_model->update($update_content, $content_id);
                     if(strlen($slug)>0)
                     {
-                        $url = $this->_verify_slug($slug, $language_slug);
                         $new_slug = array(
                             'content_type' => $content_type,
                             'content_id' => $content_id,
                             'translation_id' => $translation_id,
                             'language_slug' => $language_slug,
-                            'url' => $url,
-                            'created_by' => $this->user_id);
-                        if($slug_id =  $this->slug_model->insert($new_slug))
-                        {
-                            $this->slug_model->where(array('content_type'=>$content_type, 'translation_id'=>$translation_id, 'id !='=>$slug_id))->update(array('redirect'=>$slug_id,'updated_by'=>$this->user_id));
-                        }
+                            'url' => $slug);
+                        $this->slug_model->verify_insert($new_slug);
                     }
                     $this->postal->add('The translation was updated successfully.','success');
                 }
@@ -187,25 +180,6 @@ class Contents extends Admin_Controller
             redirect('admin/contents/index/'.$content_type,'refresh');
         }
     }
-    private function _verify_slug($str,$language)
-    {
-        if($this->slug_model->where(array('url'=>$str,'language_slug'=>$language))->get() !== FALSE)
-        {
-            $parts = explode('-',$str);
-            if(is_numeric($parts[sizeof($parts)-1]))
-            {
-                $parts[sizeof($parts)-1] = $parts[sizeof($parts)-1]++;
-            }
-            else
-            {
-                $parts[] = '1';
-            }
-            $str = implode('-',$parts);
-            $this->_verify_slug($str,$language);
-        }
-        return $str;
-    }
-
     public function publish($content_id, $published)
     {
         $content = $this->content_model->get($content_id);

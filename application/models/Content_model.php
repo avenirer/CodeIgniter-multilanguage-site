@@ -5,11 +5,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Content_model extends MY_Model
 {
     private $featured_image;
+    public $before_create = array('created_by');
+    public $before_update = array('updated_by');
     public function __construct()
     {
         $this->featured_image = $this->config->item('cms_featured_image');
         $this->has_many['translations'] = array('Content_translation_model','content_id','id');
         parent::__construct();
+    }
+
+    public function created_by($data)
+    {
+        $data['created_by'] = $this->user_id;
+        return $data;
+    }
+
+    public function updated_by($data)
+    {
+        $data['updated_by'] = $this->user_id;
+        return $data;
     }
 
     public function get_content_list($content_type = 'post', $language_slug = NULL)
