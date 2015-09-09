@@ -32,14 +32,14 @@ class Findcontent extends Public_Controller
                 if($slug->redirect!='0')
                 {
                     $slug = $this->slug_model->get($slug->redirect);
-                }
-                if($slug->language_slug == $this->default_lang)
-                {
-                    redirect($slug->url, 'location', 301);
-                }
-                else
-                {
-                    redirect($slug->language_slug.'/'.$slug->url,'refresh');
+                    if($slug->language_slug == $this->default_lang)
+                    {
+                        redirect($slug->url, 'location', 301);
+                    }
+                    else
+                    {
+                        redirect($slug->language_slug.'/'.$slug->url,'refresh');
+                    }
                 }
             }
             $content_id = $slug->content_id;
