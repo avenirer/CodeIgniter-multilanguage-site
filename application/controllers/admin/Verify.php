@@ -55,7 +55,6 @@ class Verify extends Admin_Controller
                 'char_set' => $this->db->char_set,
                 'dbcollat' => $this->db->dbcollat,
                 'swap_pre' => $this->db->swap_pre,
-                'autoinit' => $this->db->autoinit,
                 'encrypt' => $this->db->encrypt,
                 'compress' => $this->db->compress,
                 'stricton' => $this->db->stricton,

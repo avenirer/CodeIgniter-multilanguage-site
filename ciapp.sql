@@ -266,6 +266,8 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO `users` (`id`, `ip_address`, `username`, `password`, `salt`, `email`, `activation_code`, `forgotten_password_code`, `forgotten_password_time`, `remember_code`, `created_on`, `last_login`, `active`, `first_name`, `last_name`, `company`, `phone`) VALUES (1,	'127.0.0.1',	'administrator',	'$2y$08$G0h47xFzvBDD3DjwWD13XeCfwGuZgqtSodh5ARhDJLLWPRv0jSgfG',	'',	'admin@admin.com',	'',	NULL,	NULL,	NULL,	1268889823,	1442319684,	1,	'Admin',	'istrator',	'ADMIN',	'0');
+
 
 DROP TABLE IF EXISTS `users_groups`;
 CREATE TABLE `users_groups` (
@@ -279,6 +281,8 @@ CREATE TABLE `users_groups` (
   CONSTRAINT `fk_users_groups_users1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `users_groups_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `users_groups` (`id`, `user_id`, `group_id`) VALUES (3,	1,	1);
 
 
 DROP TABLE IF EXISTS `website`;

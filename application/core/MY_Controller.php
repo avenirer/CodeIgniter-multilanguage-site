@@ -154,6 +154,10 @@ class Public_Controller extends MY_Controller
                 redirect('offline', 'refresh', 503);
             }
         }
+
+        $language = $this->data['current_lang'];
+        $idiom = $language['language_directory'];
+        $this->load->language('interface_lang',$idiom);
 	}
 
     protected function render($the_view = NULL, $template = 'public_master')

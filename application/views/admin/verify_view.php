@@ -393,10 +393,6 @@
                     <td><?php echo $db_settings['swap_pre']; ?></td>
                 </tr>
                 <tr>
-                    <th>Autoinit:</th>
-                    <td><?php echo $db_settings['autoinit']; ?></td>
-                </tr>
-                <tr>
                     <th>Encrypt:</th>
                     <td><?php echo $db_settings['encrypt']; ?></td>
                 </tr>
