@@ -98,6 +98,8 @@ CREATE TABLE `groups` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO `groups` (`id`, `name`, `description`) VALUES (1,	'admin','Administrators'), (2,'members','Members');
+
 
 DROP TABLE IF EXISTS `images`;
 CREATE TABLE `images` (
