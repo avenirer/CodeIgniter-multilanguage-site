@@ -1030,7 +1030,7 @@ class MY_Model extends CI_Model
                         }
 
                     }
-                    if($request['parameters']['fields']=='*count*')
+                    if(array_key_exists('fields',$request['parameters']) && $request['parameters']['fields']=='*count*')
                     {
                         $sub_results->group_by('`' . $foreign_table . '`.`' . $foreign_key . '`');
                     }
