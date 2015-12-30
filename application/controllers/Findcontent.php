@@ -23,8 +23,6 @@ class Findcontent extends Public_Controller
                 break;
             }
         }
-        //$url = $this->uri->segment(1);
-        $this->load->model('slug_model');
         if($slug = $this->slug_model->where(array('url'=>$url))->get())
         {
             if($slug->redirect != '0' || $slug->language_slug!=$this->current_lang)
@@ -46,8 +44,7 @@ class Findcontent extends Public_Controller
             $language_slug = $slug->language_slug;
 
             $content = $this->content_model->where('published','1')->with_translations('where:`language_slug` = \'' . $language_slug . '\'')->get($content_id);
-            if($translation = $content->translations[0]) {
-
+            if(is_object($content) && $translation = $content->translations[0]) {
                 /*
                 echo '<pre>';
                 print_r($content);
@@ -70,11 +67,15 @@ class Findcontent extends Public_Controller
                 $this->data['content'] = $translation->content;
 
                 $this->render('public/'.$content->content_type . '_view');
-            }
+            } else {
+				// the content translation is inactive show 404 page.
+				show_404();
+				exit;
+			}
         }
         else
         {
-            echo 'oups...';
+            #echo 'oups...'; // fix error header already sent when show 404 page.
             show_404();
             exit;
         }
