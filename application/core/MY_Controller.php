@@ -45,6 +45,11 @@ class MY_Controller extends CI_Controller
             $this->current_lang = $lang_slug;
             $_SESSION['set_language'] = $lang_slug;
         }
+        // If not, we look to see if the language session variable is set
+        elseif(isset($_SESSION['set_language']))
+        {
+            $this->current_lang = $_SESSION['set_language'];
+        }
         // If not, we set the language session to the default language
         else
         {
