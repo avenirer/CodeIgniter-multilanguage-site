@@ -34,13 +34,16 @@ $route['^(\w{2})/(.*)'] = function($language, $link) use ($controllers_methods)
                 $new_link = ltrim($link, $key);
                 $new_link = $sym_link . $new_link;
                 return $new_link;
-                break;
             }
             else
             {
                 return 'findcontent/index';
             }
         }
+    }
+    else
+    {
+        return $link;
     }
 };
 $route['^(\w{2})$'] = $route['default_controller'];
