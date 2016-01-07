@@ -45,24 +45,13 @@ class MY_Controller extends CI_Controller
             $this->current_lang = $lang_slug;
             $_SESSION['set_language'] = $lang_slug;
         }
-        // If not, we look to see if the language session variable is set
-        elseif(isset($_SESSION['set_language']))
-        {
-            $this->current_lang = $_SESSION['set_language'];
-        }
-
-        elseif(get_cookie('set_language',TRUE))
-        {
-            $this->current_lang = get_cookie('set_language',TRUE);
-            $_SESSION['set_language'] = $this->curent_lang;
-        }
         // If not, we set the language session to the default language
         else
         {
             $this->current_lang = $this->default_lang;
             $_SESSION['set_language'] = $this->default_lang;
         }
-        set_cookie('set_language',$_SESSION['set_language'],2600000);
+
         // Now we store the languages as a $data key, just in case we need them in our views
         $this->data['langs'] = $this->langs;
         // Also let's have our current language in a $data key
