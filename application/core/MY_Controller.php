@@ -180,9 +180,11 @@ class Public_Controller extends MY_Controller
 
     protected function render($the_view = NULL, $template = 'public_master')
     {
+        /* load a generic language file (this language file will be used across many pages - like in the footer of pages) */
         $this->load->language('app_lang',$this->langs[$this->current_lang]['language_directory']);
 
-
+        /* you can load a specific language file inside the controller constructor with $this->language_file = ''.
+        The file will be loaded from the app_files directory inside specific language directory */
         if(!isset($this->language_file))
         {
             $uri = explode('/', uri_string());
@@ -214,6 +216,8 @@ class Public_Controller extends MY_Controller
             if (!in_array($current_method, $language_file_array)) $language_file_array[] = $current_method;
             $this->language_file = implode('_', $language_file_array);
         }
+
+        /* verify if a language file specific to the method exists. If it does, load it */
         if(file_exists(APPPATH.'language/'.$this->langs[$this->current_lang]['language_directory'].'/app_files/'.strtolower($this->language_file).'_lang.php')) {
             $this->lang->load('app_files/'.strtolower($this->language_file).'_lang', $this->langs[$this->current_lang]['language_directory']);
         }
