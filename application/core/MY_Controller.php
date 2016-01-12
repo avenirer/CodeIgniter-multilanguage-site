@@ -180,6 +180,9 @@ class Public_Controller extends MY_Controller
 
     protected function render($the_view = NULL, $template = 'public_master')
     {
+        $this->load->language('app_lang',$this->langs[$this->current_lang]['language_directory']);
+
+
         if(!isset($this->language_file))
         {
             $uri = explode('/', uri_string());
