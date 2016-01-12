@@ -102,7 +102,7 @@ class MY_Controller extends CI_Controller
 
 	protected function render($the_view = NULL, $template = 'master')
 	{
-		if($template == 'json' || $this->input->is_ajax_request())
+        if($template == 'json' || $this->input->is_ajax_request())
 		{
 			header('Content-Type: application/json');
 			echo json_encode($this->data);
@@ -176,14 +176,43 @@ class Public_Controller extends MY_Controller
                 redirect('offline', 'refresh', 503);
             }
         }
-
-        $language = $this->data['current_lang'];
-        $idiom = $language['language_directory'];
-        $this->load->language('interface_lang',$idiom);
 	}
 
     protected function render($the_view = NULL, $template = 'public_master')
     {
+        if(!isset($this->language_file))
+        {
+            $uri = explode('/', uri_string());
+            $calling_class = get_class($this);
+            $url = array();
+            foreach ($uri as $key => $value) {
+                if(trim(strlen($value)>0))
+                {
+                    if (is_numeric($value) || ($value==$this->current_lang)) unset($uri[$key]);
+                    else $url[$key] = str_replace('-', '_', $value);
+                }
+            }
+
+            $methods = debug_backtrace();
+
+            foreach($methods as $method)
+            {
+                if($method['function']!=='render' && method_exists($calling_class,$method['function']))
+                {
+                    $current_method = $method['function'];
+                }
+            }
+
+            $method_key = array_search($current_method, $url);
+            $language_file_array = array_slice($url, 0, ($method_key + 1));
+
+            $calling_class = strtolower($calling_class);
+            if (!in_array($calling_class, $language_file_array)) $language_file_array[] = $calling_class;
+            if (!in_array($current_method, $language_file_array)) $language_file_array[] = $current_method;
+            $this->language_file = implode('_', $language_file_array);
+        }
+        $this->lang->load('app_files/'.strtolower($this->language_file).'_lang',$this->langs[$this->current_lang]['language_directory']);
+
         $this->load->library('menus');
         $this->data['top_menu'] = $this->menus->get_menu('top-menu',$this->current_lang,'bootstrap_menu');
         parent::render($the_view, $template);

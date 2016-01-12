@@ -190,9 +190,10 @@ class MY_Model extends CI_Model
         $this->pagination_arrows = (isset($this->pagination_arrows)) ? $this->pagination_arrows : array('&lt;','&gt;');
         /* These below are implementation examples for before_create and before_update triggers.
         Their respective functions - add_creator() and add_updater() - can be found at the end of the model.
-        They add user id on create and update. If you comment this out don't forget to do the same for the methods() */
+        They add user id on create and update. If you comment this out don't forget to do the same for the methods()
         $this->before_create[]='add_creator';
         $this->before_create[]='add_updater';
+        */
     }
 
     public function _get_table_fields()
@@ -825,6 +826,7 @@ class MY_Model extends CI_Model
         return FALSE;
     }
 
+
     /**
      * public function get()
      * Retrieves one row from table.
@@ -833,13 +835,7 @@ class MY_Model extends CI_Model
      */
     public function get($where = NULL)
     {
-        if(isset($this->_cache) && !empty($this->_cache))
-        {
-            $this->load->driver('cache');
-            $cache_name = $this->_cache['cache_name'];
-            $seconds = $this->_cache['seconds'];
-            $data = $this->cache->{$this->cache_driver}->get($cache_name);
-        }
+        $data = $this->_get_from_cache();
 
         if(isset($data) && $data !== FALSE)
         {
@@ -872,11 +868,7 @@ class MY_Model extends CI_Model
                 $row = $this->trigger('after_get', $row);
                 $row =  $this->_prep_after_read(array($row),FALSE);
                 $row = $row[0];
-                if(isset($cache_name) && isset($seconds))
-                {
-                    $this->cache->{$this->cache_driver}->save($cache_name, $data, $seconds);
-                    $this->_reset_cache($cache_name);
-                }
+                $this->_write_to_cache($row);
                 return $row;
             }
             else
@@ -894,13 +886,7 @@ class MY_Model extends CI_Model
      */
     public function get_all($where = NULL)
     {
-        if(isset($this->_cache) && !empty($this->_cache))
-        {
-            $this->load->driver('cache');
-            $cache_name = $this->_cache['cache_name'];
-            $seconds = $this->_cache['seconds'];
-            $data = $this->cache->{$this->cache_driver}->get($cache_name);
-        }
+        $data = $this->_get_from_cache();
 
         if(isset($data) && $data !== FALSE)
         {
@@ -935,11 +921,7 @@ class MY_Model extends CI_Model
                 $data = $query->result_array();
                 $data = $this->trigger('after_get', $data);
                 $data = $this->_prep_after_read($data,TRUE);
-                if(isset($cache_name) && isset($seconds))
-                {
-                    $this->cache->{$this->cache_driver}->save($cache_name, $data, $seconds);
-                    $this->_reset_cache($cache_name);
-                }
+                $this->_write_to_cache($data);
                 return $data;
             }
             else
@@ -1512,9 +1494,38 @@ class MY_Model extends CI_Model
         return $this;
     }
 
+    protected function _get_from_cache($cache_name = NULL)
+    {
+        if(isset($cache_name) || (isset($this->_cache) && !empty($this->_cache)))
+        {
+            $this->load->driver('cache');
+            $cache_name = isset($cache_name) ? $cache_name : $this->_cache['cache_name'];
+            $data = $this->cache->{$this->cache_driver}->get($cache_name);
+            return $data;
+        }
+    }
+
+    protected function _write_to_cache($data, $cache_name = NULL)
+    {
+        if(isset($cache_name) || (isset($this->_cache) && !empty($this->_cache)))
+        {
+            $this->load->driver('cache');
+            $cache_name = isset($cache_name) ? $cache_name : $this->_cache['cache_name'];
+            $seconds = $this->_cache['seconds'];
+            if(isset($cache_name) && isset($seconds))
+            {
+                $this->cache->{$this->cache_driver}->save($cache_name, $data, $seconds);
+                $this->_reset_cache($cache_name);
+                return TRUE;
+            }
+            return FALSE;
+        }
+    }
+
     public function set_cache($string, $seconds = 86400)
     {
         $prefix = (strlen($this->cache_prefix)>0) ? $this->cache_prefix.'_' : '';
+        $prefix .= $this->table.'_';
         $this->_cache = array('cache_name' => $prefix.$string,'seconds'=>$seconds);
         return $this;
     }
@@ -1781,14 +1792,19 @@ class MY_Model extends CI_Model
         return (bool)count(array_filter(array_keys($array), 'is_string'));
     }
 
+    /*
     public function add_creator($data)
     {
     	$data['created_by'] = $_SESSION['user_id'];
     	return $data;
     }
+    */
+
+    /*
     public function add_updater($data)
     {
 	    $data['updated_by'] = $_SESSION['user_id'];
 	    return $data;
     }
+    */
 }
