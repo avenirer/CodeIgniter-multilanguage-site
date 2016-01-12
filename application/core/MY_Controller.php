@@ -214,7 +214,9 @@ class Public_Controller extends MY_Controller
             if (!in_array($current_method, $language_file_array)) $language_file_array[] = $current_method;
             $this->language_file = implode('_', $language_file_array);
         }
-        $this->lang->load('app_files/'.strtolower($this->language_file).'_lang',$this->langs[$this->current_lang]['language_directory']);
+        if(file_exists(APPPATH.'language/'.$this->langs[$this->current_lang]['language_directory'].'/app_files/'.strtolower($this->language_file).'_lang.php')) {
+            $this->lang->load('app_files/'.strtolower($this->language_file).'_lang', $this->langs[$this->current_lang]['language_directory']);
+        }
 
         $this->load->library('menus');
         $this->data['top_menu'] = $this->menus->get_menu('top-menu',$this->current_lang,'bootstrap_menu');
