@@ -44,7 +44,12 @@ class Findcontent extends Public_Controller
             $language_slug = $slug->language_slug;
 
             $content = $this->content_model->where('published','1')->with_translations('where:`language_slug` = \'' . $language_slug . '\'')->get($content_id);
+<<<<<<< HEAD
             if(is_object($content) && $translation = $content->translations[0]) {
+=======
+            if($content && ($translation = $content->translations[0])) {
+
+>>>>>>> 4f442df1da65ee0164bb7f955bd34624173a3e15
                 /*
                 echo '<pre>';
                 print_r($content);

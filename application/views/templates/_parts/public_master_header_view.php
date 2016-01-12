@@ -22,7 +22,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand"
-                   href="<?php echo site_url();?>"><?php echo $website->title;?></a>
+                   href="<?php echo site_url($lang_slug);?>"><?php echo $website->title;?></a>
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">

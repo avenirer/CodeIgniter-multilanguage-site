@@ -7,6 +7,7 @@ class Content_model extends MY_Model
     private $featured_image;
     public $before_create = array('created_by');
     public $before_update = array('updated_by');
+    public $table = 'contents';
     public function __construct()
     {
         $this->featured_image = $this->config->item('cms_featured_image');
@@ -35,7 +36,7 @@ class Content_model extends MY_Model
             $this->db->where('content_translations.language_slug',$language_slug);
         }
         $this->db->join('content_translations','contents.id = content_translations.content_id');
-        $query = $this->db->get('contents');
+        $query = $this->db->get($this->table);
         if($query->num_rows()>0)
         {
             $list_content = array();
