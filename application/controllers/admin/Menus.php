@@ -122,7 +122,7 @@ class Menus extends Admin_Controller
         $this->data['menu'] = $this->menu_model->get($menu_id);
         $list_items = array();
 
-        if($items = $this->menu_item_model->order_by('order','asc')->with('translations')->get_all())
+        if($items = $this->menu_item_model->order_by('order','asc')->where('menu_id',$menu_id)->with('translations')->get_all())
         {
             foreach ($items as $item)
             {
