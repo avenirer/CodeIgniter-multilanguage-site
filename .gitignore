@@ -45,5 +45,6 @@ Temporary Items
 system
 media
 uploads
+application/session
 .gitignore
 application/cache
