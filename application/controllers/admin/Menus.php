@@ -265,7 +265,6 @@ class Menus extends Admin_Controller
             $translation_id = $this->input->post('translation_id');
             $item_id = $this->input->post('item_id');
             $menu_id = $this->input->post('menu_id');
-            $this->postal->add('Couldn\'t edit item.','error');
 
             $update_data = array('title' => $title, 'url' => $url, 'absolute_path' => $absolute_path, 'updated_by'=>$this->user_id);
 
@@ -273,6 +272,10 @@ class Menus extends Admin_Controller
             {
                 $this->postal->add('Item successfuly edited.','success');
                 $this->menu_item_model->update(array('parent_id'=>$parent_id, 'order'=>$order,'styling'=>$styling,'updated_by'=>$this->user_id),$item_id);
+            }
+            else
+            {
+                $this->postal->add('Couldn\'t edit item.','error');
             }
             redirect('admin/menus/items/'.$menu_id);
 
