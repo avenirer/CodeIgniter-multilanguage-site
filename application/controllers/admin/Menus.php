@@ -132,14 +132,6 @@ class Menus extends Admin_Controller
                     foreach ($item->translations as $translation)
                     {
                         $list_items[$item->id]['translations'][$translation->language_slug] = array('translation_id' => $translation->id, 'title' => $translation->title, 'created_at' => $translation->created_at, 'last_update' => $translation->updated_at, 'deleted' => $translation->deleted_at, 'url'=>$translation->url);
-                        if(!isset($list_items[$item->id]['title']))
-                        {
-                            $list_items[$item->id]['title'] = $translation->title;
-                        }
-                        if (($translation->language_slug == $this->default_lang) && (strlen($translation->title)>0))
-                        {
-                            $list_items[$item->id]['title'] = $translation->title;
-                        }
                     }
                 }
             }

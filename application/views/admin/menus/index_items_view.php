@@ -56,7 +56,17 @@
                 foreach($items as $item_id => $item)
                 {
                     echo '<tr>';
-                    echo '<td>'.$item_id.'</td><td>'.$item['title'].'</td>';
+                    echo '<td>'.$item_id.'</td><td>';
+                    if(!empty($item['translations']))
+                    {
+                        $titles = array();
+                        foreach($item['translations'] as $language=>$translation)
+                        {
+                            $titles[] = '<strong>'.$language.'</strong>: '.$translation['title'];
+                        }
+                        echo implode('<br />',$titles);
+                    }
+                    echo '</td>';
                     echo '<td>'.$item['parent_id'].'</td>';
                     foreach($langs as $slug=>$language)
                     {
