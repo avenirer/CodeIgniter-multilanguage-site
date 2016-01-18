@@ -6,7 +6,7 @@
  * Time: 4:54 PM
  */
 
-class Menus {
+class Menus_creator {
 
     public $language_slug;
 

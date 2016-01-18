@@ -226,8 +226,8 @@ class Public_Controller extends MY_Controller
             $this->lang->load('app_files/'.strtolower($this->language_file).'_lang', $this->langs[$this->current_lang]['language_directory']);
         }
 
-        $this->load->library('menus');
-        $this->data['top_menu'] = $this->menus->get_menu('top-menu',$this->current_lang,'bootstrap_menu');
+        $this->load->library('menus_creator');
+        $this->data['top_menu'] = $this->menus_creator->get_menu('top-menu',$this->current_lang,'bootstrap_menu');
         parent::render($the_view, $template);
     }
 
