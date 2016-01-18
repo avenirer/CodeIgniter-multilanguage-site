@@ -41,6 +41,14 @@ class MY_Controller extends CI_Controller
         $lang_slug = $this->uri->segment(1);
         // If we do, and we have that languages in our set of languages we store the language slug in the session
 
+        if($lang_slug===$this->default_lang)
+        {
+            $segs = $this->uri->segment_array();
+            unset($segs[1]);
+            $new_url = implode('/',$segs);
+            redirect($new_url, 'location', 301);
+        }
+
 
 
 
@@ -226,8 +234,8 @@ class Public_Controller extends MY_Controller
             $this->lang->load('app_files/'.strtolower($this->language_file).'_lang', $this->langs[$this->current_lang]['language_directory']);
         }
 
-        $this->load->library('menus');
-        $this->data['top_menu'] = $this->menus->get_menu('top-menu',$this->current_lang,'bootstrap_menu');
+        $this->load->library('menus_creator');
+        $this->data['top_menu'] = $this->menus_creator->get_menu('top-menu',$this->current_lang,'bootstrap_menu');
         parent::render($the_view, $template);
     }
 

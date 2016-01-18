@@ -132,14 +132,6 @@ class Menus extends Admin_Controller
                     foreach ($item->translations as $translation)
                     {
                         $list_items[$item->id]['translations'][$translation->language_slug] = array('translation_id' => $translation->id, 'title' => $translation->title, 'created_at' => $translation->created_at, 'last_update' => $translation->updated_at, 'deleted' => $translation->deleted_at, 'url'=>$translation->url);
-                        if(!isset($list_items[$item->id]['title']))
-                        {
-                            $list_items[$item->id]['title'] = $translation->title;
-                        }
-                        if (($translation->language_slug == $this->default_lang) && (strlen($translation->title)>0))
-                        {
-                            $list_items[$item->id]['title'] = $translation->title;
-                        }
                     }
                 }
             }
@@ -195,19 +187,29 @@ class Menus extends Admin_Controller
             $item_id = $this->input->post('item_id');
             $menu_id = $this->input->post('menu_id');
             $language_slug = $this->input->post('language_slug');
-            $this->postal->add('Couldn\'t add item.','error');
             if ($item_id == 0)
             {
                 $item_id = $this->menu_item_model->insert(array('menu_id' => $menu_id, 'parent_id' => $parent_id, 'order' => $order, 'styling'=>$styling, 'created_by'=>$this->user_id));
-                $this->postal->add('Item successfuly added, but didn\'t add translation...','error');
+                if($item_id!==FALSE)
+                {
+                    $this->postal->add('Item successfuly added', 'success');
+                }
+                else
+                {
+                    $this->postal->add('Couldn\'t add item.','error');
+                }
             }
 
             $insert_data = array('item_id' => $item_id, 'title' => $title, 'url' => $url, 'absolute_path' => $absolute_path, 'language_slug' => $language_slug, 'created_by'=>$this->user_id);
 
             if($translation_id = $this->menu_item_translation_model->insert($insert_data))
             {
-                $this->postal->add('Item successfuly added.','success');
+                $this->postal->add('Translation successfully added.','success');
                 $this->menu_item_model->update(array('parent_id'=>$parent_id, 'order'=>$order, 'styling'=>$styling, 'updated_by'=>$this->user_id),$item_id);
+            }
+            else
+            {
+                $this->postal->add('Couldn\'t add translation.','error');
             }
 
             redirect('admin/menus/items/'.$menu_id);
@@ -263,7 +265,6 @@ class Menus extends Admin_Controller
             $translation_id = $this->input->post('translation_id');
             $item_id = $this->input->post('item_id');
             $menu_id = $this->input->post('menu_id');
-            $this->postal->add('Couldn\'t edit item.','error');
 
             $update_data = array('title' => $title, 'url' => $url, 'absolute_path' => $absolute_path, 'updated_by'=>$this->user_id);
 
@@ -271,6 +272,10 @@ class Menus extends Admin_Controller
             {
                 $this->postal->add('Item successfuly edited.','success');
                 $this->menu_item_model->update(array('parent_id'=>$parent_id, 'order'=>$order,'styling'=>$styling,'updated_by'=>$this->user_id),$item_id);
+            }
+            else
+            {
+                $this->postal->add('Couldn\'t edit item.','error');
             }
             redirect('admin/menus/items/'.$menu_id);
 
