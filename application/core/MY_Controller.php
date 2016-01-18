@@ -64,6 +64,10 @@ class MY_Controller extends CI_Controller
                     $language  = ($this->current_lang==$this->default_lang) ? '' : $this->current_lang;
                     redirect($language);
 
+                } else {
+                    # set the default lang when visiting the site for the first time
+                    $this->current_lang = $this->default_lang;
+                    $_SESSION['set_language'] = $this->default_lang;	
                 }
             }
             else
