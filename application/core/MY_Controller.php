@@ -41,6 +41,14 @@ class MY_Controller extends CI_Controller
         $lang_slug = $this->uri->segment(1);
         // If we do, and we have that languages in our set of languages we store the language slug in the session
 
+        if($lang_slug===$this->default_lang)
+        {
+            $segs = $this->uri->segment_array();
+            unset($segs[1]);
+            $new_url = implode('/',$segs);
+            redirect($new_url, 'location', 301);
+        }
+
 
 
 
