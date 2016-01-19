@@ -39,24 +39,22 @@ class MY_Controller extends CI_Controller
 
         // Verify if we have a language set in the URL;
         $lang_slug = $this->uri->segment(1);
+
+
         // If we do, and we have that languages in our set of languages we store the language slug in the session
-
-        if($lang_slug===$this->default_lang)
-        {
-            $segs = $this->uri->segment_array();
-            unset($segs[1]);
-            $new_url = implode('/',$segs);
-            redirect($new_url, 'location', 301);
-        }
-
-
-
-
-
         if(isset($lang_slug) && array_key_exists($lang_slug, $this->langs))
         {
             $this->current_lang = $lang_slug;
             $_SESSION['set_language'] = $lang_slug;
+
+            // Let's make sure that if the default language is in url, we remove it from there and redirect
+            if($lang_slug===$this->default_lang)
+            {
+                $segs = $this->uri->segment_array();
+                unset($segs[1]);
+                $new_url = implode('/',$segs);
+                redirect($new_url, 'location', 301);
+            }
         }
         //else if a session variable set_language is not set but there exists a cookie named set_language, we will use those
         // If not, we set the language session to the default language
@@ -84,9 +82,12 @@ class MY_Controller extends CI_Controller
                 $_SESSION['set_language'] = $this->default_lang;
             }
         }
+        // We set a cookie so that if the visitor come again, he will be redirected to its chosen language
         set_cookie('set_language',$_SESSION['set_language'],2600000);
+
         // Now we store the languages as a $data key, just in case we need them in our views
         $this->data['langs'] = $this->langs;
+
         // Also let's have our current language in a $data key
         $this->data['current_lang'] = $this->langs[$this->current_lang];
 
@@ -229,7 +230,7 @@ class Public_Controller extends MY_Controller
             $this->language_file = implode('_', $language_file_array);
         }
 
-        /* verify if a language file specific to the method exists. If it does, load it */
+        /* verify if a language file specific to the method exists. If it does, load it. If it doesn't, simply do not load anything */
         if(file_exists(APPPATH.'language/'.$this->langs[$this->current_lang]['language_directory'].'/app_files/'.strtolower($this->language_file).'_lang.php')) {
             $this->lang->load('app_files/'.strtolower($this->language_file).'_lang', $this->langs[$this->current_lang]['language_directory']);
         }
@@ -238,6 +239,4 @@ class Public_Controller extends MY_Controller
         $this->data['top_menu'] = $this->menus_creator->get_menu('top-menu',$this->current_lang,'bootstrap_menu');
         parent::render($the_view, $template);
     }
-
-
 }
