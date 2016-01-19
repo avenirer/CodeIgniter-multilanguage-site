@@ -16,7 +16,7 @@
             </div>
             <?php echo form_hidden('group_id',set_value('group_id',$group->id));?>
             <?php echo form_submit('submit', 'Edit group', 'class="btn btn-primary btn-lg btn-block"');?>
-            <?php echo anchor('/admin/languages', 'Cancel','class="btn btn-default btn-lg btn-block"');?>
+            <?php echo anchor('/admin/groups', 'Cancel','class="btn btn-default btn-lg btn-block"');?>
             <?php echo form_close();?>
         </div>
     </div>
