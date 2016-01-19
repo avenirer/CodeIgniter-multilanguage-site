@@ -107,8 +107,10 @@ class MY_Controller extends CI_Controller
         $this->load->model('website_model');
         $this->website = $this->website_model->get();
         $this->data['website'] = $this->website;
-        $this->data['page_title'] = 'CI App';
-        $this->data['page_description'] = 'CI_App';
+
+        // Get the default page description and title from the database
+        $this->data['page_title'] = $this->website->page_title;
+        $this->data['page_description'] = $this->website->page_title;
 		$this->data['before_head'] = '';
 		$this->data['before_body'] = '';
 	}
