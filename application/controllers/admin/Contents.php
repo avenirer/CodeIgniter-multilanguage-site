@@ -116,6 +116,13 @@ class Contents extends Admin_Controller
             redirect('admin/contents/index/'.$content_type, 'refresh');
         }
 
+        $this->load->model('image_model');
+        $images = $this->image_model->where('content_id',$content_id)->get_all();
+        if($images!== FALSE)
+        {
+            $this->data['uploaded_images'] = $images;
+        }
+
         $this->data['translation'] = $translation;
         $this->data['parents'] = $this->content_model->get_parents_list($content_type,$content_id,$language_slug);
         $this->data['content'] = $content;
