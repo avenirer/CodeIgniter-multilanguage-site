@@ -16,7 +16,7 @@ class Image_model extends MY_Model
 
     public $rules = array(
         'insert' => array(
-            'content_type' => array('field'=>'content_type','label'=>'Content type', 'rules'=>'trim|required'),
+            //'content_type' => array('field'=>'content_type','label'=>'Content type', 'rules'=>'trim|required'),
             'content_id' => array('field'=>'content_id','label'=>'Content ID','rules'=>'trim|is_natural_no_zero|required'),
             'titles' => array('field'=>'titles','label'=>'Title(s)','rules'=>'trim'),
             'file_names' => array('field'=>'file_names','label'=>'File name(s)','rules'=>'trim')

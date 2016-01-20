@@ -57,16 +57,21 @@ class Images extends Admin_Controller
             {
                 $images_data = $this->upload->data();
                 $insert_images = array();
-                foreach($images_data as $image)
+                if(array_keys($images_data) !== range(0, count($images_data) - 1))
                 {
-                    if(strlen($title)==0) $title = $image['file_name'];
-                    $insert_images[] = array(
-                        'file'=>$image['file_name'],
-                        'width'=>$image['image_width'],
-                        'height'=>$image['image_height'],
-                        'title'=>$title,
-                        'content_id'=>$content_id,
-                        'created_by'=>$this->user_id);
+                    $insert_images[] = array('file'=>$images_data['file_name'], 'width'=>$images_data['image_width'], 'height'=>$images_data['image_height'], 'title'=>$title,'content_id'=>$content_id,'created_by'=>$this->user_id);
+                }
+                else {
+                    foreach ($images_data as $image) {
+                        if (strlen($title) == 0) $title = $image['file_name'];
+                        $insert_images[] = array(
+                                'file' => $image['file_name'],
+                                'width' => $image['image_width'],
+                                'height' => $image['image_height'],
+                                'title' => $title,
+                                'content_id' => $content_id,
+                                'created_by' => $this->user_id);
+                    }
                 }
                 if($inserted_images = $this->image_model->insert($insert_images))
                 {

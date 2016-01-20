@@ -56,15 +56,15 @@ class Image_nation {
                 $image_path = ($this->_size_folders) ? str_replace('\\','/',FCPATH.$this->_parent_directory).'/'.$size.'/' : str_replace('\\','/',FCPATH.$this->_parent_directory).'/';
                 $width_height = explode('x',$size);
                 $sizes_arr[$size] = array(
-                    'width' => $width_height[0],
-                    'height' => $width_height[1],
-                    'master_dim' => $this->_default_master_dim,
-                    'keep_aspect_ratio' => $this->_keep_aspect_ratio,
-                    'style' => $this->_default_style,
-                    'quality' => $this->_default_quality,
-                    'directory' => $image_path,
-                    'file_name' => FALSE,
-                    'overwrite' => $this->_overwrite_images
+                        'width' => $width_height[0],
+                        'height' => $width_height[1],
+                        'master_dim' => $this->_default_master_dim,
+                        'keep_aspect_ratio' => $this->_keep_aspect_ratio,
+                        'style' => $this->_default_style,
+                        'quality' => $this->_default_quality,
+                        'directory' => $image_path,
+                        'file_name' => FALSE,
+                        'overwrite' => $this->_overwrite_images
                 );
             }
             return $sizes_arr;

@@ -31,7 +31,7 @@
             echo form_hidden('content_type',set_value('content_type',$content_type));
             */?>
             <?php echo form_error('content_id');?>
-            <?php echo form_hidden('content_id',set_value('content_id',$content_id));?>
+            <?php echo form_hidden('content_id',$content_id)?>
             <?php
             $submit_button = 'Upload image(s)';
             echo '<div class="form-group">';

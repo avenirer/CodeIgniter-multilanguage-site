@@ -18,17 +18,20 @@ class MY_Upload extends CI_Upload
      * a temporary string that will be appended to the errors when one or more files is/are not uploaded
      * @var string
      */
-    private $tempString;
+    public $tempString;
     /**
      * an array that will contain all the data regarding the successfully uploaded files
      * @var array
      */
-    private $uploadedFiles = array();
+    public $uploadedFiles = array();
 
     function __construct($config = array())
     {
         parent::__construct($config);
-        $this->set_multi($config['multi']);
+        if(array_key_exists('multi',$config))
+        {
+            $this->set_multi($config['multi']);
+        }
     }
 
     public function do_upload($field = 'userfile') {
@@ -115,20 +118,20 @@ class MY_Upload extends CI_Upload
         }
         // if the files were not uploaded, then we update the data
         $data = array(
-            'file_name'		=> $this->file_name,
-            'file_type'		=> $this->file_type,
-            'file_path'		=> $this->upload_path,
-            'full_path'		=> $this->upload_path.$this->file_name,
-            'raw_name'		=> str_replace($this->file_ext, '', $this->file_name),
-            'orig_name'		=> $this->orig_name,
-            'client_name'		=> $this->client_name,
-            'file_ext'		=> $this->file_ext,
-            'file_size'		=> $this->file_size,
-            'is_image'		=> $this->is_image(),
-            'image_width'		=> $this->image_width,
-            'image_height'		=> $this->image_height,
-            'image_type'		=> $this->image_type,
-            'image_size_str'	=> $this->image_size_str,
+                'file_name'		=> $this->file_name,
+                'file_type'		=> $this->file_type,
+                'file_path'		=> $this->upload_path,
+                'full_path'		=> $this->upload_path.$this->file_name,
+                'raw_name'		=> str_replace($this->file_ext, '', $this->file_name),
+                'orig_name'		=> $this->orig_name,
+                'client_name'		=> $this->client_name,
+                'file_ext'		=> $this->file_ext,
+                'file_size'		=> $this->file_size,
+                'is_image'		=> $this->is_image(),
+                'image_width'		=> $this->image_width,
+                'image_height'		=> $this->image_height,
+                'image_type'		=> $this->image_type,
+                'image_size_str'	=> $this->image_size_str,
         );
 
         if ( ! empty($index))
