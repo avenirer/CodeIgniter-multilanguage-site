@@ -145,7 +145,8 @@ class Content_model extends MY_Model
         ),
         'insert_featured' => array(
             'file_name' => array('field'=>'file_name','label'=>'File name','rules'=>'trim'),
-            'content_id' => array('field'=>'content_id','label'=>'Contend ID','rules'=>'tirm|is_natural_no_zero|required')
+            // there where two typos in here 'Contend ID' and 'tirm' 
+            'content_id' => array('field'=>'content_id','label'=>'Content ID','rules'=>'trim|is_natural_no_zero|required')
         )
     );
 }
