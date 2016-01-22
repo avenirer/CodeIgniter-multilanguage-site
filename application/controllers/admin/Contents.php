@@ -77,7 +77,7 @@ class Contents extends Admin_Controller
                 $content_id = $this->content_model->insert($insert_content);
             }
 
-            $insert_translation = array('content_id'=>$content_id,'title' => $title, 'short_title' => $short_title, 'teaser' => $teaser,'content' => $content,'page_title' => $page_title, 'page_description' => $page_description,'page_keywords' => $page_keywords,'language_slug' => $language_slug);
+            $insert_translation = array('content_id'=>$content_id, 'content_type'=>$content_type',title' => $title, 'short_title' => $short_title, 'teaser' => $teaser,'content' => $content,'page_title' => $page_title, 'page_description' => $page_description,'page_keywords' => $page_keywords,'language_slug' => $language_slug);
 
             if($translation_id = $this->content_translation_model->insert($insert_translation))
             {
