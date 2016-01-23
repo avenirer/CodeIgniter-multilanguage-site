@@ -95,8 +95,8 @@ class Rake extends Admin_Controller
         $this->data['content_id'] = $content_id;
 
         $this->data['content_type'] = $content->content_type;
-        $translation = $this->content_translation_model->where(array('language_slug'=>$language_slug,'content_id' => $content->id,'content_type'=>$content->content_type))->get();
-        $this->keyphrase_model->where(array('content_id'=>$content->id,'content_type'=>$content->content_type,'language_slug'=>$language_slug))->delete();
+        $translation = $this->content_translation_model->where(array('language_slug'=>$language_slug,'content_id' => $content->id))->get();
+        $this->keyphrase_model->where(array('content_id'=>$content->id,'language_slug'=>$language_slug))->delete();
 
 
         $text = strip_tags($translation->title).'. '.strip_tags($translation->content);
@@ -375,9 +375,9 @@ class Rake extends Admin_Controller
                     $phrase = $this->phrase_model->where(array('phrase'=>$key,'language_slug'=>$language_slug))->get();
                     $phrase_id = $phrase->id;
                 }
-                $this->keyphrase_model->insert(array('content_id'=>$content->id,'content_type'=>$content->content_type,'phrase_id'=>$phrase_id,'language_slug'=>$language_slug,'score'=>$score));
+                $this->keyphrase_model->insert(array('content_id'=>$content->id,'phrase_id'=>$phrase_id,'language_slug'=>$language_slug,'score'=>$score));
             }
-            $this->content_translation_model->where(array('content_id'=>$content->id, 'content_type'=>$content->content_type, 'language_slug'=>$language_slug))->update(array('rake'=>'1'));
+            $this->content_translation_model->where(array('content_id'=>$content->id,'language_slug'=>$language_slug))->update(array('rake'=>'1'));
         }
 
         foreach($extracted_phrases as $key => $score)
@@ -442,14 +442,14 @@ class Rake extends Admin_Controller
     public function add_remove_keyword($language_slug, $content_id, $word_id, $appearances=0)
     {
         $content = $this->content_model->get($content_id);
-        if($keyword = $this->keyword_model->where(array('word_id'=>$word_id,'content_id'=>$content->id,'content_type'=>$content->content_type,'language_slug'=>$language_slug))->get())
+        if($keyword = $this->keyword_model->where(array('word_id'=>$word_id,'content_id'=>$content->id,'language_slug'=>$language_slug))->get())
         {
             $this->postal->add('The keyword was deleted.','success');
             $this->keyword_model->delete($keyword->id);
         }
         else
         {
-            $insert_data = array('word_id'=>$word_id,'content_id'=>$content->id,'content_type'=>$content->content_type,'language_slug'=>$language_slug,'appearances'=>$appearances);
+            $insert_data = array('word_id'=>$word_id,'content_id'=>$content->id,'language_slug'=>$language_slug,'appearances'=>$appearances);
             if($this->keyword_model->insert($insert_data))
             {
                 $this->postal->add('The keyword was inserted.','success');
@@ -463,7 +463,7 @@ class Rake extends Admin_Controller
     public function refresh($language_slug, $content_id, $word_id, $appearances=0)
     {
         $content = $this->content_model->get($content_id);
-        if($this->keyword_model->where(array('word_id'=>$word_id,'content_id'=>$content->id,'content_type'=>$content->content_type,'language_slug'=>$language_slug))->update(array('appearances'=>$appearances)))
+        if($this->keyword_model->where(array('word_id'=>$word_id,'content_id'=>$content->id,'language_slug'=>$language_slug))->update(array('appearances'=>$appearances)))
         {
             $this->postal->add('The keyword was updated.','success');
         }
