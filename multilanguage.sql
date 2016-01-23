@@ -59,6 +59,7 @@ INSERT INTO `contents` (`id`, `content_type`, `parent_id`, `featured_image`, `or
 DROP TABLE IF EXISTS `content_translations`;
 CREATE TABLE `content_translations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `content_type` varchar(100) NOT NULL,
   `content_id` int(11) NOT NULL,
   `language_slug` varchar(5) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
