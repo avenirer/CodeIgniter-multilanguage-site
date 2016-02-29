@@ -54,6 +54,8 @@
  *              By default, MY_Model uses the files to cache result.
  *              If you want to change the way it stores the cache, you can change the $cache_driver property to whatever CodeIgniter cache driver you want to use.
  *              Also, with $cache_prefix, you can prefix the name of the caches. by default any cache made by MY_Model starts with 'mm' + _ + "name chosen for cache"
+ *          $this->delete_cache_on_save = FALSE
+ *              If you use caching often and you don't want to be forced to delete cache manually, you can enable $this->delete_cache_on_save by setting it to TRUE. If set to TRUE the model will auto-delete all cache related to the model's table whenever you write/update/delete data from that table.
  *          $this->pagination_delimiters = array('<span>','</span>');
  *              If you know you will use the paginate() method, you can change the delimiters between the pages links
  *          $this->pagination_arrows = array('&lt;','&gt;');
@@ -140,6 +142,7 @@ class MY_Model extends CI_Model
     public $cache_driver = 'file';
     public $cache_prefix = 'mm';
     protected $_cache = array();
+    public $delete_cache_on_save = TRUE;
 
     /*pagination*/
     public $next_page;
@@ -241,11 +244,7 @@ class MY_Model extends CI_Model
         $data_as_array = (is_object($data)) ? (array)$data : $data;
 
         $new_data = array();
-        $multi = FALSE;
-        foreach($data as $element)
-        {
-            $multi = (is_array($element)) ? TRUE : FALSE;
-        }
+        $multi = $this->is_multidimensional($data);
         if($multi===FALSE)
         {
             foreach ($data_as_array as $field => $value)
@@ -268,6 +267,20 @@ class MY_Model extends CI_Model
             }
         }
         return $new_data;
+    }
+
+    /*
+     * public function _prep_after_write()
+     * this function simply deletes the cache related to the model's table if $this->delete_cache_on_save is set to TRUE
+     * It should be called by any "save" method
+     */
+    public function _prep_after_write()
+    {
+        if($this->delete_cache_on_save===TRUE)
+        {
+            $this->delete_cache('*');
+        }
+        return TRUE;
     }
 
     public function _prep_before_read()
@@ -393,11 +406,7 @@ class MY_Model extends CI_Model
         $data = $this->_prep_before_write($data);
 
         //now let's see if the array is a multidimensional one (multiple rows insert)
-        $multi = FALSE;
-        foreach($data as $element)
-        {
-            $multi = (is_array($element)) ? TRUE : FALSE;
-        }
+        $multi = $this->is_multidimensional($data);
 
         // if the array is not a multidimensional one...
         if($multi === FALSE)
@@ -409,6 +418,7 @@ class MY_Model extends CI_Model
             $data = $this->trigger('before_create',$data);
             if($this->_database->insert($this->table, $data))
             {
+                $this->_prep_after_write();
                 $id = $this->_database->insert_id();
                 $return = $this->trigger('after_create',$id);
                 return $return;
@@ -431,12 +441,34 @@ class MY_Model extends CI_Model
                     $return[] = $this->_database->insert_id();
                 }
             }
+            $this->_prep_after_write();
             $after_create = array();
             foreach($return as $id)
             {
                 $after_create[] = $this->trigger('after_create', $id);
             }
             return $after_create;
+        }
+        return FALSE;
+    }
+
+    /*
+     * public function is_multidimensional($array)
+     * Verifies if an array is multidimensional or not;
+     * @param array $array
+     * @return bool return TRUE if the array is a multidimensional one
+     */
+    public function is_multidimensional($array)
+    {
+        if(is_array($array))
+        {
+            foreach($array as $element)
+            {
+                if(is_array($element))
+                {
+                    return TRUE;
+                }
+            }
         }
         return FALSE;
     }
@@ -466,11 +498,7 @@ class MY_Model extends CI_Model
         $data = $this->_prep_before_write($data);
 
         //now let's see if the array is a multidimensional one (multiple rows insert)
-        $multi = FALSE;
-        foreach($data as $element)
-        {
-            $multi = (is_array($element)) ? TRUE : FALSE;
-        }
+        $multi = $this->is_multidimensional($data);
 
         // if the array is not a multidimensional one...
         if($multi === FALSE)
@@ -501,6 +529,7 @@ class MY_Model extends CI_Model
             {
                 if($this->_database->update($this->table, $data))
                 {
+                    $this->_prep_after_write();
                     $affected = $this->_database->affected_rows();
                     $return = $this->trigger('after_update',$affected);
                     return $return;
@@ -510,6 +539,7 @@ class MY_Model extends CI_Model
             {
                 if($this->_database->set($data, null, FALSE)->update($this->table))
                 {
+                    $this->_prep_after_write();
                     $affected = $this->_database->affected_rows();
                     $return = $this->trigger('after_update',$affected);
                     return $return;
@@ -553,6 +583,7 @@ class MY_Model extends CI_Model
                 }
             }
             $affected = $rows;
+            $this->_prep_after_write();
             $return = $this->trigger('after_update',$affected);
             return $return;
         }
@@ -582,10 +613,7 @@ class MY_Model extends CI_Model
 
         if(is_array($field_or_array))
         {
-            $multi = FALSE;
-            foreach($field_or_array as $element) {
-                $multi = (is_array($element)) ? TRUE : FALSE;
-            }
+            $multi = $this->is_multidimensional($field_or_array);
             if($multi === TRUE)
             {
                 foreach ($field_or_array as $where)
@@ -744,6 +772,7 @@ class MY_Model extends CI_Model
                 }
                 $affected_rows = $this->_database->update_batch($this->table, $to_update, $this->primary_key);
                 $to_update['affected_rows'] = $affected_rows;
+                $this->_prep_after_write();
                 $this->trigger('after_soft_delete',$to_update);
             }
             return $affected_rows;
@@ -759,6 +788,7 @@ class MY_Model extends CI_Model
                     $to_update = $this->trigger('after_delete',$to_update);
                     $affected_rows = $to_update;
                 }
+                $this->_prep_after_write();
                 return $affected_rows;
             }
         }
@@ -779,6 +809,7 @@ class MY_Model extends CI_Model
         }
         if($this->_database->delete($this->table))
         {
+            $this->_prep_after_write();
             return $this->_database->affected_rows();
         }
         return FALSE;
@@ -799,6 +830,7 @@ class MY_Model extends CI_Model
         }
         if($affected_rows = $this->_database->update($this->table,array($this->_deleted_at_field=>NULL)))
         {
+            $this->_prep_after_write();
             return $affected_rows;
         }
         return FALSE;
@@ -932,12 +964,12 @@ class MY_Model extends CI_Model
     }
 
     /**
-     * public function count()
+     * public function count_rows()
      * Retrieves number of rows from table.
      * @param null $where
      * @return integer
      */
-    public function count($where = NULL)
+    public function count_rows($where = NULL)
     {
         if(isset($where))
         {
@@ -1064,7 +1096,7 @@ class MY_Model extends CI_Model
                             $fields = explode(',', $request['parameters']['fields']);
                             foreach ($fields as $field)
                             {
-                                $select[] = '`' . $foreign_table . '`.`' . trim($field) . '`';
+                                $select[] = (strpos($field,'.')===FALSE) ? '`' . $foreign_table . '`.`' . trim($field) . '`' : trim($field);
                             }
                             $the_select = implode(',', $select);
                             $sub_results = (isset($the_select)) ? $sub_results->fields($the_select) : $sub_results;
@@ -1103,7 +1135,7 @@ class MY_Model extends CI_Model
                             $fields = explode(',', $request['parameters']['fields']);
                             $select = array();
                             foreach ($fields as $field) {
-                                $select[] = '`' . $foreign_table . '`.`' . trim($field) . '`';
+                                $select[] = (strpos($field,'.')===FALSE) ? '`' . $foreign_table . '`.`' . trim($field) . '`' : trim($field);
                             }
                             $the_select = implode(',', $select);
                             $this->_database->select($the_select);
@@ -1130,7 +1162,7 @@ class MY_Model extends CI_Model
                     $the_foreign_key = $result_array[$foreign_key];
                     if(isset($pivot_table))
                     {
-                        $the_local_key = $result_array[singular($this->table) . '_' . $local_key];
+                        $the_local_key = $result_array[$pivot_local_key];
                         if(isset($get_relate) and $get_relate === TRUE)
                         {
                             $subs[$the_local_key][$the_foreign_key] = $this->{$relation['foreign_model']}->where($local_key, $result[$local_key])->get();
@@ -1325,11 +1357,11 @@ class MY_Model extends CI_Model
     }
 
     /**
-     * public function reset($connection_group = NULL)
+     * public function reset_connection($connection_group = NULL)
      * Resets the connection to the default used for all the model
      * @return obj
      */
-    public function reset()
+    public function reset_connection()
     {
         if(isset($connection_group))
         {
@@ -1558,7 +1590,7 @@ class MY_Model extends CI_Model
                     break;
                 }
             }
-            $mask = (isset($string)) ? $path.$prefix.$string : $path.$prefix.'*';
+            $mask = (isset($string)) ? $path.$prefix.$string : $path.$this->cache_prefix.'_*';
             array_map('unlink', glob($mask));
         }
         return $this;
@@ -1606,9 +1638,17 @@ class MY_Model extends CI_Model
      */
     private function _set_connection()
     {
-        //unset($this->db);
-        isset($this->_database_connection) ? $this->load->database($this->_database_connection) : $this->load->database();
-        $this->_database = $this->db;
+        if(isset($this->_database_connection))
+        {
+            $this->_database = $this->load->database($this->_database_connection,TRUE);
+        }
+        else
+        {
+            $this->load->database();
+            $this->_database =$this->db;
+        }
+        // This may not be required
+        return $this;
     }
 
     /*
