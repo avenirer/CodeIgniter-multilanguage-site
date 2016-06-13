@@ -157,7 +157,8 @@ class Admin_Controller extends MY_Controller
 			$this->data['current_user_menu'] = $this->load->view('templates/_parts/user_menu_admin_view.php', NULL, TRUE);
 		}
 
-		$this->data['page_title'] = 'CI App - Dashboard';
+		$this->data['page_title'] = $this->website->page_title;
+        	$this->data['page_description'] = $this->website->page_title;
 	}
 	protected function render($the_view = NULL, $template = 'admin_master')
 	{
