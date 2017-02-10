@@ -6,7 +6,7 @@
  *
  * This content is released under the MIT License (MIT)
  *
- * Copyright (c) 2014 - 2015, British Columbia Institute of Technology
+ * Copyright (c) 2014 - 2017, British Columbia Institute of Technology
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,10 @@
  *
  * @package	CodeIgniter
  * @author	EllisLab Dev Team
- * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (http://ellislab.com/)
- * @copyright	Copyright (c) 2014 - 2015, British Columbia Institute of Technology (http://bcit.ca/)
+ * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (https://ellislab.com/)
+ * @copyright	Copyright (c) 2014 - 2017, British Columbia Institute of Technology (http://bcit.ca/)
  * @license	http://opensource.org/licenses/MIT	MIT License
- * @link	http://codeigniter.com
+ * @link	https://codeigniter.com
  * @since	Version 1.0.0
  * @filesource
  */
@@ -46,7 +46,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @subpackage	CodeIgniter
  * @category	Common Functions
  * @author		EllisLab Dev Team
- * @link		http://codeigniter.com/user_guide/
+ * @link		https://codeigniter.com/user_guide/
  */
 
 // ------------------------------------------------------------------------
@@ -181,7 +181,7 @@ if ( ! function_exists('load_class'))
 		// Did we find the class?
 		if ($name === FALSE)
 		{
-			// Note: We use exit() rather then show_error() in order to avoid a
+			// Note: We use exit() rather than show_error() in order to avoid a
 			// self-referencing loop with the Exceptions class
 			set_status_header(503);
 			echo 'Unable to locate the specified class: '.$class.'.php';
@@ -355,7 +355,7 @@ if ( ! function_exists('is_https'))
 		{
 			return TRUE;
 		}
-		elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+		elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
 		{
 			return TRUE;
 		}
@@ -506,6 +506,9 @@ if ( ! function_exists('set_status_header'))
 		{
 			is_int($code) OR $code = (int) $code;
 			$stati = array(
+				100	=> 'Continue',
+				101	=> 'Switching Protocols',
+
 				200	=> 'OK',
 				201	=> 'Created',
 				202	=> 'Accepted',
@@ -524,6 +527,7 @@ if ( ! function_exists('set_status_header'))
 
 				400	=> 'Bad Request',
 				401	=> 'Unauthorized',
+				402	=> 'Payment Required',
 				403	=> 'Forbidden',
 				404	=> 'Not Found',
 				405	=> 'Method Not Allowed',
@@ -540,13 +544,18 @@ if ( ! function_exists('set_status_header'))
 				416	=> 'Requested Range Not Satisfiable',
 				417	=> 'Expectation Failed',
 				422	=> 'Unprocessable Entity',
+				426	=> 'Upgrade Required',
+				428	=> 'Precondition Required',
+				429	=> 'Too Many Requests',
+				431	=> 'Request Header Fields Too Large',
 
 				500	=> 'Internal Server Error',
 				501	=> 'Not Implemented',
 				502	=> 'Bad Gateway',
 				503	=> 'Service Unavailable',
 				504	=> 'Gateway Timeout',
-				505	=> 'HTTP Version Not Supported'
+				505	=> 'HTTP Version Not Supported',
+				511	=> 'Network Authentication Required',
 			);
 
 			if (isset($stati[$code]))
@@ -594,7 +603,7 @@ if ( ! function_exists('_error_handler'))
 	 */
 	function _error_handler($severity, $message, $filepath, $line)
 	{
-		$is_error = (((E_ERROR | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) & $severity) === $severity);
+		$is_error = (((E_ERROR | E_PARSE | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) & $severity) === $severity);
 
 		// When an error occurred, set the status header to '500 Internal Server Error'
 		// to indicate to the client something went wrong.
@@ -652,6 +661,7 @@ if ( ! function_exists('_exception_handler'))
 		$_error =& load_class('Exceptions', 'core');
 		$_error->log_exception('error', 'Exception: '.$exception->getMessage(), $exception->getFile(), $exception->getLine());
 
+		is_cli() OR set_status_header(500);
 		// Should we display the error?
 		if (str_ireplace(array('off', 'none', 'no', 'false', 'null'), '', ini_get('display_errors')))
 		{
@@ -673,7 +683,7 @@ if ( ! function_exists('_shutdown_handler'))
 	 * of CodeIgniter.php. The main reason we use this is to simulate
 	 * a complete custom exception handler.
 	 *
-	 * E_STRICT is purposivly neglected because such events may have
+	 * E_STRICT is purposively neglected because such events may have
 	 * been caught. Duplication or none? None is preferred for now.
 	 *
 	 * @link	http://insomanic.me.uk/post/229851073/php-trick-catching-fatal-errors-e-error-with-a
@@ -712,8 +722,8 @@ if ( ! function_exists('remove_invisible_characters'))
 		// carriage return (dec 13) and horizontal tab (dec 09)
 		if ($url_encoded)
 		{
-			$non_displayables[] = '/%0[0-8bcef]/';	// url encoded 00-08, 11, 12, 14, 15
-			$non_displayables[] = '/%1[0-9a-f]/';	// url encoded 16-31
+			$non_displayables[] = '/%0[0-8bcef]/i';	// url encoded 00-08, 11, 12, 14, 15
+			$non_displayables[] = '/%1[0-9a-f]/i';	// url encoded 16-31
 		}
 
 		$non_displayables[] = '/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/S';	// 00-08, 11, 12, 14-31, 127
@@ -745,10 +755,15 @@ if ( ! function_exists('html_escape'))
 		{
 			return $var;
 		}
-		
+
 		if (is_array($var))
 		{
-			return array_map('html_escape', $var, array_fill(0, count($var), $double_encode));
+			foreach (array_keys($var) as $key)
+			{
+				$var[$key] = html_escape($var[$key], $double_encode);
+			}
+
+			return $var;
 		}
 
 		return htmlspecialchars($var, ENT_QUOTES, config_item('charset'), $double_encode);
@@ -829,19 +844,9 @@ if ( ! function_exists('function_usable'))
 		{
 			if ( ! isset($_suhosin_func_blacklist))
 			{
-				if (extension_loaded('suhosin'))
-				{
-					$_suhosin_func_blacklist = explode(',', trim(ini_get('suhosin.executor.func.blacklist')));
-
-					if ( ! in_array('eval', $_suhosin_func_blacklist, TRUE) && ini_get('suhosin.executor.disable_eval'))
-					{
-						$_suhosin_func_blacklist[] = 'eval';
-					}
-				}
-				else
-				{
-					$_suhosin_func_blacklist = array();
-				}
+				$_suhosin_func_blacklist = extension_loaded('suhosin')
+					? explode(',', trim(ini_get('suhosin.executor.func.blacklist')))
+					: array();
 			}
 
 			return ! in_array($function_name, $_suhosin_func_blacklist, TRUE);
