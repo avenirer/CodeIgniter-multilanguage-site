@@ -1,7 +1,9 @@
 <div class="row">
     <div class="col-lg-4 col-lg-offset-4">
         <h1>Login</h1>
-        <?php echo $this->session->flashdata('message');?>
+        <?php
+        echo $this->postal->get();
+        ?>
         <?php echo form_open('',array('class'=>'form-horizontal'));?>
         <div class="form-group">
             <?php echo form_label('Username','identity');?>
