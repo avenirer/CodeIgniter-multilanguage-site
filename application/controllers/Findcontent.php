@@ -23,9 +23,10 @@ class Findcontent extends Public_Controller
                 break;
             }
         }
-        if($slug = $this->slug_model->where(array('url'=>$url))->get())
+
+        if($slug = $this->slug_model->where(array('url'=>$url, 'language_slug'=>$_SESSION['set_language']))->get())
         {
-            if($slug->redirect != '0' || $slug->language_slug!=$this->current_lang)
+            if($slug->redirect != '0' || $slug->language_slug!=$_SESSION['set_language'])
             {
                 if($slug->redirect!='0')
                 {
@@ -45,34 +46,26 @@ class Findcontent extends Public_Controller
 
             $content = $this->content_model->where('published','1')->with_translations('where:`language_slug` = \'' . $language_slug . '\'')->get($content_id);
 
-            if(is_object($content) && $translation = $content->translations[0]) {
-                /*
-                echo '<pre>';
-                print_r($content);
-                echo '</pre>';
-                exit;
-                */
-                $alternate_content = $this->slug_model->where(array('content_id' => $content_id, 'redirect' => '0'))->get_all();
-                if (!empty($alternate_content))
-                {
-                    foreach($alternate_content as $link)
-                    {
-                        $this->langs[$link->language_slug]['alternate_link'] = (($link->language_slug!==$this->default_lang) ? '/'.$link->language_slug : '').'/'.$link->url;
-                    }
-                }
-                $this->data['langs'] = $this->langs;
-                $this->data['page_title'] = $translation->page_title;
-                $this->data['page_description'] = $translation->page_description;
-                $this->data['page_keywords'] = $translation->page_keywords;
-                $this->data['title'] = $translation->title;
-                $this->data['content'] = $translation->content;
+            if(is_object($content) && $translation = $content->translations[0])
+            {
+                $this->{'_'.$content->content_type.'_show'}($content);
 
-                $this->render('public/'.$content->content_type . '_view');
             } else {
 				// the content translation is inactive show 404 page.
 				show_404();
 				exit;
 			}
+        }
+        elseif($slug = $this->slug_model->where(array('url'=>$url))->get())
+        {
+            if($slug->language_slug == $this->default_lang)
+            {
+                redirect($slug->url, 'location', 301);
+            }
+            else
+            {
+                redirect($slug->language_slug.'/'.$slug->url,'refresh');
+            }
         }
         else
         {
@@ -80,5 +73,28 @@ class Findcontent extends Public_Controller
             show_404();
             exit;
         }
+    }
+
+    // controller that deals with the category
+    private function _category_show($content)
+    {
+        $translation = $content->translations[0];
+        $alternate_content = $this->slug_model->where(array('content_id' => $content->id, 'redirect' => '0'))->get_all();
+        if (!empty($alternate_content))
+        {
+            foreach($alternate_content as $link)
+            {
+                $this->langs[$link->language_slug]['alternate_link'] = (($link->language_slug!==$this->default_lang) ? '/'.$link->language_slug : '').'/'.$link->url;
+            }
+        }
+        $this->data['langs'] = $this->langs;
+        $this->data['page_title'] = $translation->page_title;
+        $this->data['page_description'] = $translation->page_description;
+        $this->data['page_keywords'] = $translation->page_keywords;
+        $this->data['title'] = $translation->title;
+        $this->data['content'] = $translation->content;
+
+        $this->render('public/'.$content->content_type . '_view');
+
     }
 }
