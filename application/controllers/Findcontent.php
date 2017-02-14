@@ -135,8 +135,7 @@ class Findcontent extends Public_Controller
     // controller that deals with the page
     private function _page_show($content_id,$language_slug)
     {
-        $translation = $content->translations[0];
-        $alternate_content = $this->slug_model->where(array('content_id' => $content->id, 'redirect' => '0'))->get_all();
+        $alternate_content = $this->slug_model->where(array('content_id' => $this->translation->content_id, 'redirect' => '0'))->get_all();
         if (!empty($alternate_content))
         {
             foreach($alternate_content as $link)
@@ -145,11 +144,11 @@ class Findcontent extends Public_Controller
             }
         }
         $this->data['langs'] = $this->langs;
-        $this->data['page_title'] = $translation->page_title;
-        $this->data['page_description'] = $translation->page_description;
-        $this->data['page_keywords'] = $translation->page_keywords;
-        $this->data['title'] = $translation->title;
-        $this->data['content'] = $translation->content;
+        $this->data['page_title'] = $this->translation->page_title;
+        $this->data['page_description'] = $this->translation->page_description;
+        $this->data['page_keywords'] = $this->translation->page_keywords;
+        $this->data['title'] = $this->translation->title;
+        $this->data['content'] = $this->translation->content;
 
 
 
