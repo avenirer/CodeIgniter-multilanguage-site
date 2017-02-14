@@ -20,7 +20,6 @@
                 <?php echo form_checkbox('remember','1',FALSE);?> Remember me
             </label>
         </div>
-        <?php echo form_hidden('redirect_to',$redirect_to);?>
         <?php echo form_submit('submit', 'Log in', 'class="btn btn-primary btn-lg btn-block"');?>
         <?php echo form_close();?>
     </div>

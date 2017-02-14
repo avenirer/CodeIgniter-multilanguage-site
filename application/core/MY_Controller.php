@@ -67,8 +67,8 @@ class MY_Controller extends CI_Controller
                 {
                     $this->current_lang = $set_language;
                     $_SESSION['set_language'] = $this->current_lang;
-                    $language  = ($this->current_lang==$this->default_lang) ? '' : $this->current_lang;
-                    redirect($language);
+                    //$language  = ($this->current_lang==$this->default_lang) ? '' : $this->current_lang;
+                    //redirect($language);
 
                 } else {
                     # set the default lang when visiting the site for the first time
@@ -145,6 +145,7 @@ class Admin_Controller extends MY_Controller
 		$this->load->helper('url');
 		if (!$this->ion_auth->logged_in())
 		{
+            $_SESSION['redirect_to'] = current_url();
 			//redirect them to the login page
 			redirect('admin/user/login', 'refresh');
 		}

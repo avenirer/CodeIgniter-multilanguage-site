@@ -39,7 +39,7 @@ class Content_translation_model extends MY_Model
         $this->_database->order_by('content_translations.updated_at, content_translations.created_at','DESC');
         $this->_database->limit(10,($page_number-1)*10);
         $this->_database->join('contents','content_translations.content_id = contents.id');
-        $this->_database->join('slugs','content_translations.id = slugs.translation_id');
+        $this->_database->join('slugs','content_translations.id = slugs.translation_id AND slugs.content_type = \'post\'');
         $query = $this->_database->get('content_translations');
         return $query->result();
     }

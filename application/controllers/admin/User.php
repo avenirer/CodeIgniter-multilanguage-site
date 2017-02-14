@@ -21,39 +21,30 @@ class User extends MY_Controller
         {
             redirect('admin');
         }
-        $redirect_to = $this->session->flashdata('redirect_to');
-        if(!isset($redirect_to) && isset($_SERVER['HTTP_REFERER']))
-        {
-            $redirect_to = $_SERVER['HTTP_REFERER'];
-            if(strpos($redirect_to, site_url(), 0)=== FALSE) $redirect_to = site_url();
-        }
-        elseif(!isset($redirect_to))
-        {
-            $redirect_to = site_url('admin');
-        }
-        $this->data['redirect_to'] = $redirect_to;
         $this->data['page_title'] = 'Login';
         $this->load->library('form_validation');
         $this->form_validation->set_rules('identity', 'Identity', 'required');
         $this->form_validation->set_rules('password', 'Password', 'required');
         $this->form_validation->set_rules('remember','Remember me','integer');
-        $this->form_validation->set_rules('redirect_to','Redirect to','valid_url');
         if($this->form_validation->run()===TRUE)
         {
             $remember = (bool) $this->input->post('remember');
             if ($this->ion_auth->login($this->input->post('identity'), $this->input->post('password'), $remember))
             {
-                redirect('admin');
+                if(isset($_SESSION['redirect_to'])) redirect($_SESSION['redirect_to']);
+                else redirect('/admin');
             }
             else
             {
                 $this->session->set_flashdata('redirect_to',$this->input->post('redirect_to'));
                 $this->postal->add($this->ion_auth->errors(),'error');
-                redirect('admin/user/login');
+                redirect('/admin/user/login');
             }
         }
-        $this->load->helper('form');
-        $this->render('admin/login_view','admin_master');
+        else {
+            $this->load->helper('form');
+            $this->render('admin/login_view', 'admin_master');
+        }
     }
 
     public function profile()
@@ -88,7 +79,7 @@ class User extends MY_Controller
             if(strlen($this->input->post('password'))>=6) $new_data['password'] = $this->input->post('password');
             $this->ion_auth->update($user->id, $new_data);
             $this->postal->add($this->ion_auth->messages(),'error');
-            redirect('admin/user/profile');
+            redirect('/admin/user/profile');
 
         }
     }
@@ -97,6 +88,6 @@ class User extends MY_Controller
     {
         $this->ion_auth->logout();
         $this->postal->add($this->ion_auth->messages(),'error');
-        redirect('admin/user/login');
+        redirect('/admin/user/login');
     }
 }
