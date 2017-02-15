@@ -40,7 +40,7 @@ class Slug_model extends MY_Model
 
     private function _verify_slug($str,$language)
     {
-        if($this->where(array('url'=>$str,'language_slug'=>$language))->get() !== FALSE)
+        if($this->where(array('url'=>$str,'language_slug'=>$language,'redirect'=>'0'))->get() !== FALSE)
         {
             $parts = explode('-',$str);
             if(is_numeric($parts[sizeof($parts)-1]))
@@ -53,6 +53,10 @@ class Slug_model extends MY_Model
             }
             $str = implode('-',$parts);
             $this->_verify_slug($str,$language);
+        }
+        elseif($this->where(array('url'=>$str,'language_slug'=>$language,'redirect != '=>'0'))->get() !== FALSE)
+        {
+            $this->where(array('url'=>$str,'language_slug'=>$language,'redirect != '=>'0'))->delete();
         }
         return $str;
     }
