@@ -77,7 +77,15 @@
             echo '<div class="panel-body">';
             foreach($slugs as $slug)
             {
-                echo $slug->url.'<br />';
+                if($slug->redirect=='0')
+                {
+                    echo anchor($slug->url,$slug->url,'target="_blank"');
+                }
+                else
+                {
+                    echo $slug->url;
+                }
+                echo '<br />';
             }
             echo '</div>';
             echo '</div>';

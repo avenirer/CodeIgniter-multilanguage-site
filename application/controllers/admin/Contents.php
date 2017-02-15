@@ -126,7 +126,7 @@ class Contents extends Admin_Controller
         $this->data['translation'] = $translation;
         $this->data['parents'] = $this->content_model->get_parents_list($content_type,$content_id,$language_slug);
         $this->data['content'] = $content;
-        $this->data['slugs'] = $this->slug_model->where(array('translation_id'=>$translation->id))->get_all();
+        $this->data['slugs'] = $this->slug_model->where(array('translation_id'=>$translation->id))->order_by('redirect','ASC')->get_all();
         $rules = $this->content_model->rules;
         $this->form_validation->set_rules($rules['update']);
         if($this->form_validation->run()===FALSE)
